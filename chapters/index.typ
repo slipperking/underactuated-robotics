@@ -10,3 +10,6 @@
 #counter(heading).update(0)
 #include "appendices/index.typ"
 
+#chapter-section("bibliography")[
+  #bibliography("/references.bib", full: true)
+]
