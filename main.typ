@@ -54,14 +54,14 @@
         #html.elem("p", attrs: (class: "paper-misc"))[
           Typst Source: https://github.com/slipperking/underactuated-robotics
         ]
+        #html.elem("div", attrs: (class: "abstract"))[
+          Covers nonlinear dynamics and control of underactuated mechanical systems, with an emphasis on computational methods. Topics include the nonlinear dynamics of robotic manipulators, applied optimal and robust control and motion planning. Discussions include examples from biology and applications to legged locomotion, compliant manipulation, underwater robots, and flying machines.
+
+        ]
         #html.elem("p", attrs: (class: "pdf-download"))[
           #html.elem("a", attrs: (href: "pdf/notes.pdf", class: "btn-pdf"))[
             Download PDF
           ]
-        ]
-        #html.elem("div", attrs: (class: "abstract"))[
-          Covers nonlinear dynamics and control of underactuated mechanical systems, with an emphasis on computational methods. Topics include the nonlinear dynamics of robotic manipulators, applied optimal and robust control and motion planning. Discussions include examples from biology and applications to legged locomotion, compliant manipulation, underwater robots, and flying machines.
-
         ]
       ]
       //#outline()
