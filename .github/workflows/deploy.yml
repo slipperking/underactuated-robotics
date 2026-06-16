@@ -45,8 +45,8 @@ jobs:
             numpy \
             shapely
 
-      - name: Run preprocessing script
-        run: python scripts/build.py
+      # - name: Run preprocessing script
+      #   run: python scripts/build.py
 
       - name: Build site
         run: uv run web/build.py --base-url /underactuated-robotics/
