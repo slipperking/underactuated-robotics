@@ -1,3 +1,6 @@
+# /// script
+# dependencies = ["beautifulsoup4", "pagefind[extended]"]
+# ///
 import argparse
 import json
 import posixpath
