@@ -1,8 +1,8 @@
 #import "/lib.typ": chapter-section
 #set heading(numbering: "1.1")
 
-#chapter-section("prerequisites")[
-  #include "prerequisites_calc_top/index.typ"
+#chapter-section("robot-dynamics")[
+  #include "robot-dynamics/index.typ"
 ]
 
 #pagebreak()
