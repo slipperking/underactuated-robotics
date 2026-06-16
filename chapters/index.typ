@@ -1,6 +1,9 @@
 #import "/lib.typ": chapter-section
 #set heading(numbering: "1.1")
 
+#chapter-section("preface")[
+  #include "preface/index.typ"
+]
 #chapter-section("robot-dynamics")[
   #include "robot-dynamics/index.typ"
 ]
