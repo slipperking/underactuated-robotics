@@ -1,0 +1,13 @@
+web/dist/
+*.pdf
+main.html
+!figures/**/*.pdf
+.typst-cache/
+__pycache__/
+.venv/
+.DS_Store
+Thumbs.db
+
+/build
+
+test.typ
