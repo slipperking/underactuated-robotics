@@ -1,0 +1,8 @@
+{
+    "tinymist.typstExtraArgs": [
+        "--features",
+        "html",
+        "--package-path",
+        "packages"
+    ]
+}
