@@ -8,6 +8,7 @@
 #import "@preview/physica:0.9.8": va as Va, vb as Vb, vu as Vu
 #import "@preview/fancy-tiling:1.0.0": *
 #import "@preview/mannot:0.3.3"
+#import "@preview/fletcher:0.5.8"
 #import thm-themes.ams: *
 
 #let cvector = cetz.vector

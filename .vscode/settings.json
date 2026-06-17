@@ -4,5 +4,8 @@
         "html",
         "--package-path",
         "packages"
+    ],
+    "cSpell.words": [
+        "observants"
     ]
 }
