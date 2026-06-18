@@ -434,12 +434,16 @@
 ) = {
   tag-metadata-counter.step()
   context {
-    let key = "pre-extra-diff-" + str(tag-metadata-counter.get().first())
-    metadata((
-      eq-tag: t,
-      move: move,
-      pre-extra-diff: state(key),
-    ))
+    if state("render-mode").get() == "web" {
+      html.div(t, class: "tag")
+    } else {
+      let key = "pre-extra-diff-" + str(tag-metadata-counter.get().first())
+      metadata((
+        eq-tag: t,
+        move: move,
+        pre-extra-diff: state(key),
+      ))
+    }
   }
 }
 
@@ -541,13 +545,7 @@
   }
 
   show ref: it => {
-    if it.element == none {
-      return it
-    }
-    if it.element.func() != figure {
-      return it
-    }
-    if it.element.kind != "thm-env" {
+    if type(it.target) != label {
       return it
     }
 
@@ -561,11 +559,29 @@
     //   ref-supplement = none
     // }
 
-    let loc = it.element.location()
-    let thms = query(selector(<meta:thm-env-counter>).after(loc))
+    let targets = query(it.target)
+    if targets.len() == 0 {
+      return it
+    }
+
+    let target = if state("render-mode").get() == "web" {
+      targets.last()
+    } else {
+      targets.first()
+    }
+    if target.func() == figure and target.kind != "thm-env" {
+      return it
+    }
+
+    let loc = target.location()
+    let thms = query(selector(<meta:thm-env-counter>).after(loc, inclusive: true))
+    if thms.len() == 0 {
+      return it
+    }
     let thmloc = thms.first().location()
     let thm = thm-stored.at(thmloc).last()
-    return (thm.ref-fmt)(thm + (ref-supplement: ref-supplement))
+    let anchor = if target.func() == figure { loc } else { thmloc }
+    return (thm.ref-fmt)(thm + (loc: anchor, ref-supplement: ref-supplement))
   }
 
   show math.equation: eq => {

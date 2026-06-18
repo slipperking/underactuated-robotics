@@ -1,18 +1,24 @@
-#import "/lib.typ": chapter-section
+#import "/src/components/index.typ": render-mode, route-base, thm-counter
+
+#include "cover.typ"
+
+#set heading(numbering: none)
+#route-base.update("/")
+#include "preface/index.typ"
+
 #set heading(numbering: "1.1")
+#counter(heading).update(0)
+#include "robot-dynamics/index.typ"
 
-#chapter-section("preface")[
-  #include "preface/index.typ"
-]
-#chapter-section("robot-dynamics")[
-  #include "robot-dynamics/index.typ"
-]
+#context if render-mode.get() == "pdf" {
+  pagebreak()
+}
 
-#pagebreak()
 #set heading(numbering: "A.1")
 #counter(heading).update(0)
+#route-base.update("/appendices/")
 #include "appendices/index.typ"
 
-#chapter-section("bibliography")[
-  #bibliography("/references.bib", full: true)
-]
+#set heading(numbering: none)
+#route-base.update("/")
+#include "bibliography/index.typ"

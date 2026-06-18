@@ -1,4 +1,5 @@
 web/dist/
+web/.server.pid
 *.pdf
 main.html
 !figures/**/*.pdf
