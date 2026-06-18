@@ -1,10 +1,9 @@
-#import "/src/components/index.typ": docs-chapter
+#import "/src/components/index.typ": docs-appendix
 #import "/lib.typ": *
 
-#docs-chapter(
-  title: "Robot Dynamics",
-  route: "/robot-dynamics/",
-  description: "Introductory material for robot dynamics and control.",
+#docs-appendix(
+  title: [Test $alpha / 2$],
+  route: prev => prev + "test/",
 )[
   In the field of controlling and training of autonomous stuff, there are three popular ways
   + reinforcement learning (in quadrupeds)
@@ -12,4 +11,4 @@
   + mechanics optimization (as in ATLAS)
 ]
 
-#include "system-modeling/index.typ"
+#include "test/index.typ"

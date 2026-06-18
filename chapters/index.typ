@@ -1,13 +1,13 @@
-#import "/src/components/index.typ": render-mode, thm-counter
+#import "/src/components/index.typ": render-mode, route-base, thm-counter
 
 #include "cover.typ"
 
 #set heading(numbering: none)
+#route-base.update("/")
 #include "preface/index.typ"
 
 #set heading(numbering: "1.1")
 #counter(heading).update(0)
-#thm-counter.thm-counters.update(_ => (:))
 #include "robot-dynamics/index.typ"
 
 #context if render-mode.get() == "pdf" {
@@ -16,8 +16,9 @@
 
 #set heading(numbering: "A.1")
 #counter(heading).update(0)
-#thm-counter.thm-counters.update(_ => (:))
+#route-base.update("/appendices/")
 #include "appendices/index.typ"
 
 #set heading(numbering: none)
+#route-base.update("/")
 #include "bibliography/index.typ"

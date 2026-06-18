@@ -16,6 +16,7 @@
   --left-width: 18rem;
   --right-width: 16rem;
   --content-width: 46rem;
+  scrollbar-gutter: stable;
 }
 
 [data-theme="dark"] {
@@ -199,13 +200,18 @@ a {
 
 .toc-theorem a,
 .toc-theorem span {
+  position: relative;
+  padding-left: calc(1.05rem + var(--toc-depth, 0) * 0.72rem);
   color: color-mix(in srgb, var(--muted) 75%, var(--accent));
   font-size: 0.74rem;
 }
 
 .toc-theorem a::before,
 .toc-theorem span::before {
-  content: "□ ";
+  content: "-";
+  position: absolute;
+  left: calc(0.48rem + var(--toc-depth, 0) * 0.72rem);
+  top: 0.26rem;
   color: var(--accent);
 }
 
@@ -385,6 +391,121 @@ ul.itemize-ul-list {
   text-align: right;
 }
 
+.theorem-list-entry {
+  display: block;
+  margin: 0 0 0.35rem;
+  line-height: 1.45;
+}
+
+.theorem-list-title {
+  font-weight: 650;
+  white-space: normal;
+}
+
+.theorem-list-end {
+  display: inline-block;
+  width: 0;
+  height: 1em;
+  vertical-align: baseline;
+}
+
+.theorem-list-dots {
+  display: inline;
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.theorem-list-page {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ref-link-group {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.link-choice-tooltip {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  z-index: 40;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.32rem;
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--ink) 14%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.25rem);
+  transition: opacity 120ms ease, transform 120ms ease;
+  white-space: nowrap;
+}
+
+.ref-link-group:hover>.link-choice-tooltip,
+.ref-link-group:focus-within>.link-choice-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.link-choice-tooltip a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.65rem;
+  padding: 0.18rem 0.42rem;
+  border: 1px solid transparent;
+  color: var(--accent-ink);
+  font: 720 0.72rem/1.2 var(--sans);
+  text-decoration: none;
+}
+
+.link-choice-tooltip a:hover {
+  border-color: var(--line);
+  background: var(--accent-soft);
+}
+
+.equation-tag,
+.tag {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.display-math {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  width: 100%;
+  margin: 0.72rem auto 0.95rem;
+}
+
+.display-math>math[display="block"] {
+  grid-column: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0;
+  text-align: center;
+}
+
+.display-math>.equation-tag,
+.display-math>.tag {
+  grid-column: 2;
+  justify-self: end;
+  align-self: center;
+}
+
 math[display="block"] {
   width: 100%;
   min-width: 0;
@@ -394,6 +515,10 @@ math[display="block"] {
   overflow-y: hidden;
   padding: 0;
   text-align: center;
+}
+
+.display-math>math[display="block"] {
+  margin: 0;
 }
 
 figure {

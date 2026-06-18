@@ -2,12 +2,10 @@
 #import "/lib.typ": *
 
 #show: docs-section.with(
-  title: "System Modeling",
-  route: prev => prev + "system-modeling",
+  title: [System Modeling],
+  route: prev => prev + "system-modeling/",
   description: "State-space modeling and control-affine dynamics.",
 )
-
-== System Modeling
 
 Usually, controlling a system involves using a loop that adjusts the input of the system by observing the state of the system. How exactly the observants affect the input and how to design this relationship to change the system to a desired state is the study of control theory.
 
@@ -34,5 +32,5 @@ _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence
 #definition[Underactuated and Fully-Actuated][
   The equation in $(dagger)$ is said to be _fully actuated_ iff $vb(f)_2$ is of full row rank, or if
   the $rank vb(f) = dim vb(q)$ (since $dim vb(q)$ is the number of rows of $vb(f)_2$). If instead $rank vb(f)_2 < dim vb(q),$ the system is then said to be _underactuated_.
-]
-Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system.
+] <def:underactuated-and-fully-actuated>
+Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:underactuated-and-fully-actuated

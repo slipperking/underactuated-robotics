@@ -13,6 +13,7 @@
 
 #let render-mode = state("render-mode", "web")
 #let route-base = state("route-base", "/")
+#let page-heading-level = state("page-heading-level", 0)
 
 #let _resolve-route(route, base) = {
   if type(route) == function {
@@ -54,6 +55,33 @@
 }
 #let _document-path(route) = "/" + _route-path(route)
 
+#let _plain-text(value) = {
+  if value == none {
+    ""
+  } else if type(value) == str {
+    value
+  } else if type(value) == content {
+    let fields = value.fields()
+    if fields.keys().contains("text") {
+      fields.text
+    } else if fields.keys().contains("children") {
+      fields.children.map(_plain-text).join("")
+    } else if fields.keys().contains("body") {
+      _plain-text(fields.body)
+    } else if fields.keys().contains("child") {
+      _plain-text(fields.child)
+    } else if value.func() == [ ].func() {
+      " "
+    } else {
+      ""
+    }
+  } else {
+    str(value)
+  }
+}
+
+#let _metadata-page(page) = page + (title: _plain-text(page.title))
+
 #let _dirs-for(path) = path.split("/").slice(0, path.split("/").len() - 1).filter(part => part != "")
 #let _root-prefix(path) = range(_dirs-for(path).len()).map(_ => "../").join("")
 #let _pretty-path(path) = if path == "index.html" {
@@ -70,6 +98,7 @@
   title: none,
   route: none,
   kind: "section",
+  level: 1,
   description: none,
 ) = {
   assert(title != none, message: "docs page needs a title")
@@ -82,11 +111,12 @@
     path: _route-path(route),
     doc-path: _document-path(route),
     kind: kind,
+    level: level,
     description: description,
   )
 }
 
-#let _page-heading(page) = {
+#let _first-page-heading(page) = {
   let headings = query(selector(heading).within(label("doc-" + page.id)))
   if headings.len() > 0 { headings.first() } else { none }
 }
@@ -100,12 +130,12 @@
 }
 
 #let _page-depth(page) = {
-  let h = _page-heading(page)
+  let h = _first-page-heading(page)
   if h == none { 0 } else { calc.max(0, h.level - 1) }
 }
 
 #let _page-label(page) = context {
-  let h = _page-heading(page)
+  let h = _first-page-heading(page)
   let number = _heading-number(h)
 
   if page.kind == "chapter" and number != none {
@@ -119,6 +149,33 @@
   } else {
     [#page.title]
   }
+}
+
+#let _default-heading-level(kind) = if kind == "chapter" or kind == "appendix" or kind == "frontmatter" or kind == "backmatter" {
+  1
+} else if kind == "section" {
+  2
+} else if kind == "subchapter" {
+  3
+} else {
+  1
+}
+
+#let _resolve-heading-level(kind, level, previous) = {
+  let value = if level == auto {
+    _default-heading-level(kind)
+  } else if type(level) == function {
+    level(previous)
+  } else {
+    level
+  }
+  value
+}
+
+#let _page-heading(page) = context {
+  let level = _resolve-heading-level(page.kind, page.level, page-heading-level.get())
+  page-heading-level.update(level)
+  heading(level: level, [#page.title])
 }
 
 #let _pages() = query(<page-meta>).map(it => it.value)
@@ -163,9 +220,11 @@
 #let _heading-toc-entry(h) = {
   let number = _heading-number(h)
   if number == none {
-    h.body
+    _plain-text(h.body)
+  } else if h.level > 1 {
+    [#sym.section#number #_plain-text(h.body)]
   } else {
-    [#number #h.body]
+    [#number #_plain-text(h.body)]
   }
 }
 
@@ -259,8 +318,8 @@
 #let _pdf-cover() = source.pdf-cover(outline-target: selector(heading).within(pdf-doc-label))
 
 #let _html-page(page, body) = [
-  #metadata(page) <page-meta>
-  #document(page.doc-path, title: [#page.title])[
+  #metadata(_metadata-page(page)) <page-meta>
+  #document(page.doc-path, title: _plain-text(page.title))[
     #show: web-styles
     #html.elem("link", attrs: (rel: "stylesheet", href: _asset-href(page.path, "assets/site.css")))
     #_topbar(page)
@@ -288,8 +347,10 @@
   title: none,
   route: none,
   kind: "section",
+  level: auto,
   description: none,
   cover: false,
+  heading: true,
   body,
 ) = context {
   let mode = render-mode.get()
@@ -299,17 +360,27 @@
     title: title,
     route: route,
     kind: kind,
+    level: level,
     description: description,
   )
 
   if target() == "bundle" and mode == "web" {
-    let page-body = if cover { _cover-content(page) } else { body }
+    let page-body = if cover {
+      _cover-content(page)
+    } else if heading {
+      [#_page-heading(page) #body]
+    } else {
+      body
+    }
     _html-page(page, page-body)
     route-base.update(page.route)
   } else if cover {
     _pdf-cover()
     route-base.update(page.route)
   } else {
+    if heading {
+      _page-heading(page)
+    }
     body
     route-base.update(page.route)
   }
@@ -321,7 +392,7 @@
 #let docs-section(..args) = _docs-page(kind: "section", ..args)
 #let docs-subchapter(..args) = _docs-page(kind: "subchapter", ..args)
 #let docs-appendix(..args) = _docs-page(kind: "appendix", ..args)
-#let docs-backmatter(..args) = _docs-page(kind: "backmatter", ..args)
+#let docs-backmatter(..args) = _docs-page(kind: "backmatter", heading: false, ..args)
 
 #let notes() = context {
   if target() == "bundle" {
@@ -331,11 +402,13 @@
         #show: paper-styles
         #render-mode.update("pdf")
         #route-base.update("/")
+        #page-heading-level.update(0)
         #include "/chapters/index.typ"
       ] #pdf-doc-label
     ]
     render-mode.update("web")
     route-base.update("/")
+    page-heading-level.update(0)
     include "/chapters/index.typ"
   } else {
     [
@@ -343,6 +416,7 @@
         #show: paper-styles
         #render-mode.update("pdf")
         #route-base.update("/")
+        #page-heading-level.update(0)
         #include "/chapters/index.typ"
       ] #pdf-doc-label
     ]

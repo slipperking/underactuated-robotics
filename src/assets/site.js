@@ -66,4 +66,54 @@
     if (event.key === "Escape") closeSidebars();
   });
 
+  function fillTheoremLeaders() {
+    var ruler = document.createElement("span");
+    ruler.style.cssText = "position:absolute;visibility:hidden;font-family:var(--mono);white-space:nowrap;";
+    ruler.textContent = "..........";
+    document.body.appendChild(ruler);
+    var dotWidth = Math.max(1, ruler.getBoundingClientRect().width / 10);
+    ruler.remove();
+
+    document.querySelectorAll(".theorem-list-entry").forEach(function (entry) {
+      var dots = entry.querySelector(".theorem-list-dots");
+      var marker = entry.querySelector(".theorem-list-end");
+      var page = entry.querySelector(".theorem-list-page");
+      var pageLink = page && page.closest("a");
+      if (!dots || !marker || !pageLink) return;
+
+      dots.textContent = "";
+      var entryRect = entry.getBoundingClientRect();
+      var markerRect = marker.getBoundingClientRect();
+      var pageWidth = pageLink.getBoundingClientRect().width;
+      var remaining = entryRect.right - markerRect.right - pageWidth - 10;
+      var count = Math.floor(Math.max(0, remaining) / dotWidth);
+      dots.textContent = count >= 2 ? ".".repeat(count) : "";
+    });
+  }
+
+  function normalizeDisplayMath() {
+    document.querySelectorAll('math[display="block"]').forEach(function (math) {
+      var wrapper = math.closest(".display-math");
+      if (!wrapper && math.parentNode) {
+        wrapper = document.createElement("div");
+        wrapper.className = "display-math";
+        math.parentNode.insertBefore(wrapper, math);
+        wrapper.appendChild(math);
+      }
+
+      if (!wrapper) return;
+
+      var tag = math.querySelector(".tag, .equation-tag");
+      if (tag) {
+        tag.classList.add("equation-tag");
+        wrapper.appendChild(tag);
+      }
+    });
+  }
+
+  normalizeDisplayMath();
+  fillTheoremLeaders();
+  addEventListener("resize", function () {
+    fillTheoremLeaders();
+  });
 })();
