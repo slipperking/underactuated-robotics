@@ -1,4 +1,14 @@
+#import "/src/components/index.typ": docs-section
 #import "/lib.typ": *
+
+#show: docs-section.with(
+  title: "System Modeling",
+  route: prev => prev + "system-modeling",
+  number: "1.1",
+  heading-counter: (1,),
+  description: "State-space modeling and control-affine dynamics.",
+)
+
 == System Modeling
 
 Usually, controlling a system involves using a loop that adjusts the input of the system by observing the state of the system. How exactly the observants affect the input and how to design this relationship to change the system to a desired state is the study of control theory.

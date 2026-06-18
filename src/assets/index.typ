@@ -1,0 +1,6 @@
+#asset("assets/site.css", read("/src/assets/site.css"))
+#asset("assets/site.js", read("/src/assets/site.js"))
+#asset("assets/github.svg", read("/src/assets/github.svg"))
+#asset("assets/theme.svg", read("/src/assets/theme.svg"))
+#asset("assets/menu.svg", read("/src/assets/menu.svg"))
+#asset("assets/toc.svg", read("/src/assets/toc.svg"))
