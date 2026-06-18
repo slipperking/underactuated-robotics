@@ -23,6 +23,7 @@
 
 #let thm-counter = _packages.thm-counter
 #let render-mode = _web.render-mode
+#let pdf-doc-label = _web.pdf-doc-label
 #let notes-title = _web.notes-title
 #let course = _web.course
 #let authors = _web.authors

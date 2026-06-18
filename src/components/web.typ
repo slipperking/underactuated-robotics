@@ -1,15 +1,15 @@
 #import "styles.typ": paper-styles, web-styles
 #import "theorems.typ": theorem-toc-entry
 #import "packages.typ": thm-counter, thm-state
+#import "/src/source.typ" as source
 
-#let notes-title = "Notes on Underactuated Robotics"
-#let course = "MIT OpenCourseWare 6.8210"
-#let authors = "Slipper King and Saint Even"
-#let date = "June 16, 2026"
-#let source-url = "https://github.com/slipperking/underactuated-robotics"
-#let abstract = [
-  Covers nonlinear dynamics and control of underactuated mechanical systems, with an emphasis on computational methods. Topics include the nonlinear dynamics of robotic manipulators, applied optimal and robust control and motion planning. Discussions include examples from biology and applications to legged locomotion, compliant manipulation, underwater robots, and flying machines.
-]
+#let notes-title = source.title
+#let course = source.course
+#let authors = source.authors
+#let date = source.date
+#let source-url = source.source-url
+#let abstract = source.abstract
+#let pdf-doc-label = <pdf-notes>
 
 #let render-mode = state("render-mode", "web")
 #let route-base = state("route-base", "/")
@@ -70,10 +70,7 @@
   title: none,
   route: none,
   kind: "section",
-  number: none,
-  depth: 0,
   description: none,
-  heading-counter: none,
 ) = {
   assert(title != none, message: "docs page needs a title")
   assert(route != none, message: "docs page needs a route")
@@ -85,34 +82,58 @@
     path: _route-path(route),
     doc-path: _document-path(route),
     kind: kind,
-    number: number,
-    depth: depth,
     description: description,
-    heading-counter: heading-counter,
   )
 }
 
-#let _page-label(page) = if page.kind == "chapter" and page.number != none {
-  [Chapter #page.number: #page.title]
-} else if page.kind == "section" and page.number != none {
-  [#sym.section#page.number #page.title]
-} else if page.kind == "appendix" and page.number != none {
-  [Appendix #page.number: #page.title]
-} else {
-  [#page.title]
+#let _page-heading(page) = {
+  let headings = query(selector(heading).within(label("doc-" + page.id)))
+  if headings.len() > 0 { headings.first() } else { none }
+}
+
+#let _heading-number(h) = {
+  if h != none and h.numbering != none {
+    counter(heading).display(at: h.location())
+  } else {
+    none
+  }
+}
+
+#let _page-depth(page) = {
+  let h = _page-heading(page)
+  if h == none { 0 } else { calc.max(0, h.level - 1) }
+}
+
+#let _page-label(page) = context {
+  let h = _page-heading(page)
+  let number = _heading-number(h)
+
+  if page.kind == "chapter" and number != none {
+    [Chapter #number: #page.title]
+  } else if (page.kind == "section" or page.kind == "subchapter") and number != none {
+    [#sym.section#number #page.title]
+  } else if page.kind == "appendix" and number != none {
+    [Appendix #number: #page.title]
+  } else if number != none {
+    [#number #page.title]
+  } else {
+    [#page.title]
+  }
 }
 
 #let _pages() = query(<page-meta>).map(it => it.value)
 #let _icon(name, path) = html.elem("img", attrs: (class: "icon", src: path, alt: name))
 
-#let _nav-link(current, page) = {
+#let _nav-link(current, page) = context {
+  let depth = _page-depth(page)
   let cls = (
     "nav-item",
-    "nav-depth-" + str(page.depth),
     if page.id == current.id { "active" } else { none },
-  ).filter(x => x != none).join(" ")
+  )
+    .filter(x => x != none)
+    .join(" ")
 
-  html.elem("li", attrs: (class: cls), {
+  html.elem("li", attrs: (class: cls, style: "--depth: " + str(depth)), {
     html.elem("a", attrs: (href: _href-from(current.path, page.path)), _page-label(page))
   })
 }
@@ -128,19 +149,34 @@
   })
 }
 
-#let _toc-entry(class, location, body) = html.elem("li", attrs: (class: class), {
-  html.elem("span", body)
-})
+#let _toc-entry(class, location, body, depth: 0) = html.elem(
+  "li",
+  attrs: (
+    class: class,
+    style: "--toc-depth: " + str(depth),
+  ),
+  {
+    link(location, body)
+  },
+)
+
+#let _heading-toc-entry(h) = {
+  let number = _heading-number(h)
+  if number == none {
+    h.body
+  } else {
+    [#number #h.body]
+  }
+}
 
 #let _local-toc(current) = context {
   let doc-label = label("doc-" + current.id)
-  let headings = query(selector(heading).within(doc-label))
-    .filter(h => h.level > 1)
+  let headings = query(selector(heading).within(doc-label)).filter(h => h.level > 1)
   let theorem-markers = query(selector(<meta:thm-env-counter>).within(doc-label))
 
   let entries = ()
   for h in headings {
-    entries.push((level: h.level, kind: "heading", loc: h.location(), body: h.body))
+    entries.push((level: h.level, kind: "heading", loc: h.location(), body: _heading-toc-entry(h)))
   }
   for marker in theorem-markers {
     let thm = thm-state.thm-stored.at(marker.location()).last()
@@ -157,8 +193,9 @@
     } else {
       html.elem("ul", {
         for entry in entries {
-          let cls = "toc-" + entry.kind + " toc-l" + str(calc.min(entry.level, 6))
-          _toc-entry(cls, entry.loc, entry.body)
+          let depth = calc.max(0, entry.level - 2)
+          let cls = "toc-" + entry.kind
+          _toc-entry(cls, entry.loc, entry.body, depth: depth)
         }
       })
     }
@@ -207,42 +244,19 @@
     html.elem("a", attrs: (class: "icon-button github-link", href: source-url, "aria-label": "GitHub source"), {
       _icon("GitHub", _asset-href(current.path, "assets/github.svg"))
     })
-    html.elem("button", attrs: (class: "icon-button sidebar-toggle", id: "sidebar-toggle-right", "aria-label": "Page contents"), {
-      _icon("Contents", _asset-href(current.path, "assets/toc.svg"))
-    })
+    html.elem(
+      "button",
+      attrs: (class: "icon-button sidebar-toggle", id: "sidebar-toggle-right", "aria-label": "Page contents"),
+      {
+        _icon("Contents", _asset-href(current.path, "assets/toc.svg"))
+      },
+    )
   })
 })
 
-#let _cover-content(current) = {
-  html.elem("section", attrs: (class: "cover"), {
-    html.elem("p", attrs: (class: "course"), course)
-    html.elem("h1", notes-title)
-    html.elem("p", attrs: (class: "authors"), [by #smallcaps[Slipper King] and #smallcaps[Saint Even]])
-    html.elem("p", attrs: (class: "date"), date)
-    html.elem("div", attrs: (class: "abstract"), abstract)
-    html.elem("p", attrs: (class: "download"), {
-      html.elem("a", attrs: (class: "button", href: _href-from(current.path, "pdf/notes.pdf")), [Download PDF])
-    })
-  })
-}
+#let _cover-content(current) = source.web-cover(path => _href-from(current.path, path))
 
-#let _pdf-cover() = [
-  #align(center)[
-    #v(2cm)
-    #text(size: 24pt, weight: "bold")[Underactuated Robotics]
-
-    #text(size: 13pt)[MIT OpenCourseWare 6.8210]
-
-    #text(size: 13pt)[Slipper King and Saint Even]
-
-    #text(size: 11pt)[June 16, 2026]
-
-    `Source: https://github.com/slipperking/underactuated-robotics`
-  ]
-
-  #block(inset: 10pt)[#abstract]
-  #outline()
-]
+#let _pdf-cover() = source.pdf-cover(outline-target: selector(heading).within(pdf-doc-label))
 
 #let _html-page(page, body) = [
   #metadata(page) <page-meta>
@@ -255,10 +269,6 @@
         #_global-nav(page)
       ]
       #html.elem("main", attrs: (class: "content", id: "main"))[
-        #if page.heading-counter != none {
-          counter(heading).update(page.heading-counter)
-          thm-counter.thm-counters.update(_ => (:))
-        }
         #if page.kind != "cover" {
           html.elem("h1", attrs: (class: "page-title"), _page-label(page))
         }
@@ -278,10 +288,7 @@
   title: none,
   route: none,
   kind: "section",
-  number: none,
-  depth: 0,
   description: none,
-  heading-counter: none,
   cover: false,
   body,
 ) = context {
@@ -292,10 +299,7 @@
     title: title,
     route: route,
     kind: kind,
-    number: number,
-    depth: depth,
     description: description,
-    heading-counter: heading-counter,
   )
 
   if target() == "bundle" and mode == "web" {
@@ -311,30 +315,36 @@
   }
 }
 
-#let docs-cover(..args) = _docs-page(kind: "cover", depth: 0, cover: true, ..args)
-#let docs-frontmatter(..args) = _docs-page(kind: "frontmatter", depth: 0, ..args)
-#let docs-chapter(..args) = _docs-page(kind: "chapter", depth: 0, ..args)
-#let docs-section(..args) = _docs-page(kind: "section", depth: 1, ..args)
-#let docs-subchapter(..args) = _docs-page(kind: "subchapter", depth: 2, ..args)
-#let docs-appendix(..args) = _docs-page(kind: "appendix", depth: 0, ..args)
-#let docs-backmatter(..args) = _docs-page(kind: "backmatter", depth: 0, ..args)
+#let docs-cover(..args) = _docs-page(kind: "cover", cover: true, ..args)
+#let docs-frontmatter(..args) = _docs-page(kind: "frontmatter", ..args)
+#let docs-chapter(..args) = _docs-page(kind: "chapter", ..args)
+#let docs-section(..args) = _docs-page(kind: "section", ..args)
+#let docs-subchapter(..args) = _docs-page(kind: "subchapter", ..args)
+#let docs-appendix(..args) = _docs-page(kind: "appendix", ..args)
+#let docs-backmatter(..args) = _docs-page(kind: "backmatter", ..args)
 
 #let notes() = context {
   if target() == "bundle" {
     include "/src/assets/index.typ"
-    document("pdf/notes.pdf", title: [#notes-title], author: (authors,))[
-      #show: paper-styles
-      #render-mode.update("pdf")
-      #route-base.update("/")
-      #include "/chapters/index.typ"
+    [
+      #document("pdf/notes.pdf", title: [#notes-title], author: (authors,))[
+        #show: paper-styles
+        #render-mode.update("pdf")
+        #route-base.update("/")
+        #include "/chapters/index.typ"
+      ] #pdf-doc-label
     ]
     render-mode.update("web")
     route-base.update("/")
     include "/chapters/index.typ"
   } else {
-    show: paper-styles
-    render-mode.update("pdf")
-    route-base.update("/")
-    include "/chapters/index.typ"
+    [
+      #[
+        #show: paper-styles
+        #render-mode.update("pdf")
+        #route-base.update("/")
+        #include "/chapters/index.typ"
+      ] #pdf-doc-label
+    ]
   }
 }

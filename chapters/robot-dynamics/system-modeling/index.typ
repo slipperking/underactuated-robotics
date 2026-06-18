@@ -4,8 +4,6 @@
 #show: docs-section.with(
   title: "System Modeling",
   route: prev => prev + "system-modeling",
-  number: "1.1",
-  heading-counter: (1,),
   description: "State-space modeling and control-affine dynamics.",
 )
 
@@ -27,7 +25,7 @@ $
 $
 If $vb(u)$ represents the motor torques (for example), and the generalized positions measure angles, then this is typically written as
 $
-  dot.double(vb(q)) = vb(f)_1(vb(q), dot(vb(q))) + vb(f)_2 (vb(q), dot(vb(q))) vb(u) #tag[$(dagger)$],
+  dot.double(vb(q)) = vb(f)_1(vb(q), dot(vb(q))) + vb(f)_2 (vb(q), dot(vb(q))) vb(u), #tag[$(dagger)$]
 $
 where $vb(f_1)(dot) in RR^m$ is a vector with dimensionality matching $vb(q) in RR^m$, and $vb(f_1)$ is a matrix of dimension $m times n$.
 

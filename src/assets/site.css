@@ -155,7 +155,7 @@ a {
 
 .global-nav a {
   display: block;
-  padding: 0.36rem 0.6rem;
+  padding: 0.36rem 0.6rem 0.36rem calc(0.6rem + var(--depth, 0) * 0.82rem);
   border-left: 2px solid transparent;
   color: var(--muted);
   font-family: var(--sans);
@@ -167,7 +167,7 @@ a {
 .local-toc a,
 .local-toc span {
   display: block;
-  padding: 0.26rem 0.48rem;
+  padding: 0.26rem 0.48rem 0.26rem calc(0.48rem + var(--toc-depth, 0) * 0.72rem);
   border-left: 2px solid transparent;
   color: var(--muted);
   font-family: var(--sans);
@@ -182,22 +182,11 @@ a {
   background: color-mix(in srgb, var(--paper) 78%, transparent);
 }
 
-.global-nav .active > a {
+.global-nav .active>a {
   color: var(--accent-ink);
   border-left-color: var(--accent);
   background: color-mix(in srgb, var(--accent-soft) 78%, transparent);
   font-weight: 700;
-}
-
-.nav-depth-1 a {
-  padding-left: 1.45rem;
-}
-
-.nav-depth-2 a,
-.toc-l4 a,
-.toc-l5 a,
-.toc-l6 a {
-  padding-left: 2.15rem;
 }
 
 .local-toc h2 {
@@ -272,13 +261,13 @@ h3 {
   line-height: 1.12;
 }
 
-.content > .page-title + h1,
-.content > .page-title + h2,
-.content > .page-title + h3,
-.content > .page-title + h4,
-.content > .page-title + h5,
-.content > .page-title + h6,
-.content > .page-title + section[role="doc-bibliography"] > h2:first-child {
+.content>.page-title+h1,
+.content>.page-title+h2,
+.content>.page-title+h3,
+.content>.page-title+h4,
+.content>.page-title+h5,
+.content>.page-title+h6,
+.content>.page-title+section[role="doc-bibliography"]>h2:first-child {
   display: none;
 }
 
@@ -322,6 +311,7 @@ p {
 .cover .abstract {
   max-width: 42rem;
   margin-top: 2rem;
+  margin-bottom: 1rem;
   color: var(--muted);
 }
 
@@ -395,55 +385,15 @@ ul.itemize-ul-list {
   text-align: right;
 }
 
-math {
-  font-size: 1.02em;
-}
-
-.math-scroll {
-  display: block;
-  width: 100%;
-  margin: 0.72rem auto 0.95rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.06rem 0;
-  text-align: center;
-}
-
-.math-frame {
-  display: block;
-  width: 100%;
-  margin: 0.72rem auto 0.95rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.12rem 0;
-  text-align: center;
-}
-
-.math-frame > svg {
-  display: inline-block !important;
-  max-width: none;
-  vertical-align: middle;
-}
-
-[data-theme="dark"] .math-frame > svg {
-  filter: invert(1);
-}
-
-math[display="block"],
-.math-display {
-  display: block;
+math[display="block"] {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  margin: 0;
-  overflow: visible;
+  margin: 0.72rem auto 0.95rem;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 0;
   text-align: center;
-  white-space: nowrap;
-}
-
-math[display="block"] * {
-  white-space: nowrap;
 }
 
 figure {
@@ -611,6 +561,7 @@ pre {
 }
 
 @media print {
+
   .topbar,
   .sidebar-left,
   .sidebar-right,

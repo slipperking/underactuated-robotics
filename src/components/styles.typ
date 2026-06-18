@@ -59,13 +59,9 @@
     author: "Slipper King and Saint Even",
   )
   set par(justify: true)
-  set heading(numbering: none)
   set math.equation(numbering: none)
 
   show figure.where(kind: "thm-env"): it => it.body
-  show math.equation.where(block: true): it => {
-    html.elem("div", attrs: (class: "math-frame"), html.frame(it))
-  }
   show: itemize.default-enum-list
   show: itemize.config.ref.with(supplement: "Part")
   set enum(numbering: "1")
