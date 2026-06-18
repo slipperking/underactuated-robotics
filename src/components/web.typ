@@ -137,17 +137,18 @@
 #let _page-label(page) = context {
   let h = _first-page-heading(page)
   let number = _heading-number(h)
+  let title = if h != none { h.body } else { page.title }
 
   if page.kind == "chapter" and number != none {
-    [Chapter #number: #page.title]
+    [Chapter #number: #title]
   } else if (page.kind == "section" or page.kind == "subchapter") and number != none {
-    [#sym.section#number #page.title]
+    [#sym.section#number #title]
   } else if page.kind == "appendix" and number != none {
-    [Appendix #number: #page.title]
+    [Appendix #number: #title]
   } else if number != none {
-    [#number #page.title]
+    [#number #title]
   } else {
-    [#page.title]
+    [#title]
   }
 }
 

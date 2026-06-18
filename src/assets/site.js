@@ -111,7 +111,17 @@
     });
   }
 
+  function hydrateLocalTocHeadings() {
+    document.querySelectorAll('.local-toc .toc-heading a[href^="#"]').forEach(function (link) {
+      var target = document.getElementById(link.getAttribute("href").slice(1));
+      if (!target) return;
+      var prefix = link.textContent.trim().charAt(0) === "§" ? "§" : "";
+      link.innerHTML = prefix + target.innerHTML;
+    });
+  }
+
   normalizeDisplayMath();
+  hydrateLocalTocHeadings();
   fillTheoremLeaders();
   addEventListener("resize", function () {
     fillTheoremLeaders();

@@ -301,7 +301,7 @@ p {
 .cover .course,
 .cover .date,
 .cover .authors {
-  color: var(--muted);
+  color: var(--ink);
   font-family: var(--sans);
   text-align: left;
 }
