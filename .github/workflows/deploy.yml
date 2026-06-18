@@ -3,6 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -27,37 +28,25 @@ jobs:
       - name: Install Typst
         uses: typst-community/setup-typst@v4
         with:
-          typst-version: "0.15"
+          typst-version: "0.15.0"
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: false
+      - name: Build PDF
+        run: typst compile --package-path packages main.typ main.pdf
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install Python dependencies
+      - name: Build site bundle
         run: |
-          uv pip install --system \
-            numpy \
-            shapely
-
-      # - name: Run preprocessing script
-      #   run: python scripts/build.py
-
-      - name: Build site
-        run: uv run web/build.py --base-url /underactuated-robotics/
+          rm -rf web/dist
+          typst compile --features html,bundle --format bundle --package-path packages main.typ web/dist
 
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     environment:
