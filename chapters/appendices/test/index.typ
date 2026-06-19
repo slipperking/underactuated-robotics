@@ -11,4 +11,5 @@
   + mechanics optimization (as in ATLAS)
 ]
 
-#include "test/index.typ"
+#include "gamma/index.typ"
+#include "omicron/index.typ"

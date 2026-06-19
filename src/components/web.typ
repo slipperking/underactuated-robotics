@@ -152,7 +152,9 @@
   }
 }
 
-#let _default-heading-level(kind) = if kind == "chapter" or kind == "appendix" or kind == "frontmatter" or kind == "backmatter" {
+#let _default-heading-level(kind) = if (
+  kind == "chapter" or kind == "appendix" or kind == "frontmatter" or kind == "backmatter"
+) {
   1
 } else if kind == "section" {
   2
@@ -353,38 +355,40 @@
   cover: false,
   heading: true,
   body,
-) = context {
-  let mode = render-mode.get()
-  let parent-route = route-base.get()
-  let route = _resolve-route(route, parent-route)
-  let page = _page-info(
-    title: title,
-    route: route,
-    kind: kind,
-    level: level,
-    description: description,
-  )
+) = {
+  // IMPORTANT: THE STRUCTURE MUST BE SEPARATED IN THIS WAY SO THAT WE REACH STATE CONVERGENCE.
+  context {
+    let mode = render-mode.get()
+    let parent-route = route-base.get()
 
-  if target() == "bundle" and mode == "web" {
-    let page-body = if cover {
-      _cover-content(page)
-    } else if heading {
-      [#_page-heading(page) #body]
+    let route = _resolve-route(route, parent-route)
+    let page = _page-info(
+      title: title,
+      route: route,
+      kind: kind,
+      level: level,
+      description: description,
+    )
+
+    if target() == "bundle" and mode == "web" {
+      let page-body = if cover {
+        _cover-content(page)
+      } else if heading {
+        [#_page-heading(page) #body]
+      } else {
+        body
+      }
+      _html-page(page, page-body)
+    } else if cover {
+      _pdf-cover()
     } else {
+      if heading {
+        _page-heading(page)
+      }
       body
     }
-    _html-page(page, page-body)
-    route-base.update(page.route)
-  } else if cover {
-    _pdf-cover()
-    route-base.update(page.route)
-  } else {
-    if heading {
-      _page-heading(page)
-    }
-    body
-    route-base.update(page.route)
   }
+  route-base.update(old => _resolve-route(route, old))
 }
 
 #let docs-cover(..args) = _docs-page(kind: "cover", cover: true, ..args)
