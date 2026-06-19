@@ -6,5 +6,7 @@
   route: prev => prev + "test/",
   description: "State-space modeling and control-affine dynamics.",
 )
+#lorem(200)
+$ omicron $ <eq:omicron>
+#lorem(200)
 
-$omicron$

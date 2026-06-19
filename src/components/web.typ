@@ -1,4 +1,4 @@
-#import "styles.typ": paper-styles, web-styles
+#import "styles.typ": pdf-styles, web-styles
 #import "theorems.typ": theorem-toc-entry
 #import "packages.typ": thm-counter, thm-state
 #import "/src/source.typ" as source
@@ -422,7 +422,7 @@
     include "/src/assets/index.typ"
     [
       #document("pdf/notes.pdf", title: [#notes-title], author: (authors,))[
-        #show: paper-styles
+        #show: pdf-styles
         #render-mode.update("pdf")
         #route-base.update("/")
         #page-heading-level.update(0)
@@ -436,7 +436,7 @@
   } else {
     [
       #[
-        #show: paper-styles
+        #show: pdf-styles
         #render-mode.update("pdf")
         #route-base.update("/")
         #page-heading-level.update(0)

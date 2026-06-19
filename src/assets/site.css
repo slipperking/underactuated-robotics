@@ -290,7 +290,7 @@ h3 {
 
 p {
   margin: 0 0 1em;
-  text-align: left;
+  text-align: justify;
   hyphens: auto;
 }
 
@@ -474,7 +474,7 @@ ul.itemize-ul-list {
 .equation-tag,
 .eq-tag {
   color: var(--ink);
-  font-size: 0.86rem;
+  float: right;
   line-height: 1;
   white-space: nowrap;
 }
@@ -483,7 +483,7 @@ ul.itemize-ul-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: 0.75rem;
+  column-gap: 0;
   width: 100%;
   margin: 0.72rem auto 0.95rem;
 }

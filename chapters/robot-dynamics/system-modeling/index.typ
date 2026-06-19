@@ -28,6 +28,8 @@
 
   _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence _control affine_), and the equation above is affine in $vb(u)$ since it is a linear transformation of it.
 
+  $ E = m c^2 $ <eq:euler-energy-mass> // test
+
   #definition([Underactuated and Fully-Actuated], restate: true, restate-keys: (
     "def:underactuated-and-fully-actuated",
   ))[
