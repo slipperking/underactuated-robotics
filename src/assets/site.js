@@ -103,7 +103,7 @@
 
       if (!wrapper) return;
 
-      var tag = math.querySelector(".tag, .equation-tag");
+      var tag = math.querySelector(".eq-tag, .equation-tag");
       if (tag) {
         tag.classList.add("equation-tag");
         wrapper.appendChild(tag);

@@ -1,9 +1,8 @@
 #import "/src/components/index.typ": render-mode, route-base, thm-counter
 
-#include "cover.typ"
-
 #set heading(numbering: none)
 #route-base.update("/")
+#include "cover.typ"
 #include "preface/index.typ"
 
 #set heading(numbering: "1.1")

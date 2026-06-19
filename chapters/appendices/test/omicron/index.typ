@@ -1,4 +1,4 @@
-#import "/src/components/index.typ": docs-section
+#import "/src/components/index.typ": docs-section, keep-sec
 #import "/lib.typ": *
 
 #show: docs-section.with(

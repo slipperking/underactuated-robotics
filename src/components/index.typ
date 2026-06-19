@@ -36,5 +36,9 @@
 #let docs-chapter = _web.docs-chapter
 #let docs-section = _web.docs-section
 #let docs-subchapter = _web.docs-subchapter
+#let docs-subsubchapter = _web.docs-subsubchapter
 #let docs-appendix = _web.docs-appendix
 #let docs-backmatter = _web.docs-backmatter
+
+#let incr-sec = _web.incr-sec
+#let keep-sec = _web.keep-sec

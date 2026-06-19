@@ -13,9 +13,10 @@
 
 #let render-mode = state("render-mode", "web")
 #let route-base = state("route-base", "/")
+#let stored-heading-level = state("stored-heading-level", "0")
 #let page-heading-level = state("page-heading-level", 0)
 
-#let _resolve-route(route, base) = {
+#let _resolve-optional_function(route, base) = {
   if type(route) == function {
     route(base)
   } else {
@@ -141,7 +142,7 @@
 
   if page.kind == "chapter" and number != none {
     [Chapter #number: #title]
-  } else if (page.kind == "section" or page.kind == "subchapter") and number != none {
+  } else if (page.kind == "section" or page.kind == "subchapter" or page.kind == "subsubchapter") and number != none {
     [#sym.section#number #title]
   } else if page.kind == "appendix" and number != none {
     [Appendix #number: #title]
@@ -160,6 +161,8 @@
   2
 } else if kind == "subchapter" {
   3
+} else if kind == "subsubchapter" {
+  4
 } else {
   1
 }
@@ -364,9 +367,11 @@
   // IMPORTANT: THE STRUCTURE MUST BE SEPARATED IN THIS WAY SO THAT WE REACH STATE CONVERGENCE.
   context {
     let mode = render-mode.get()
-    let parent-route = route-base.get()
+    let prev-route = route-base.get()
+    let prev-level = stored-heading-level.get()
 
-    let route = _resolve-route(route, parent-route)
+    let route = _resolve-optional_function(route, prev-route)
+    let level = _resolve-optional_function(level, prev-level)
     let page = _page-info(
       title: title,
       route: route,
@@ -393,7 +398,8 @@
       body
     }
   }
-  route-base.update(old => _resolve-route(route, old))
+  route-base.update(old => _resolve-optional_function(route, old))
+  stored-heading-level.update(old => _resolve-heading-level(kind, level, old))
 }
 
 #let docs-cover(..args) = _docs-page(kind: "cover", cover: true, ..args)
@@ -401,8 +407,15 @@
 #let docs-chapter(..args) = _docs-page(kind: "chapter", ..args)
 #let docs-section(..args) = _docs-page(kind: "section", ..args)
 #let docs-subchapter(..args) = _docs-page(kind: "subchapter", ..args)
+#let docs-subsubchapter(..args) = _docs-page(kind: "subchapter", ..args)
 #let docs-appendix(..args) = _docs-page(kind: "appendix", ..args)
 #let docs-backmatter(..args) = _docs-page(kind: "backmatter", heading: false, ..args)
+
+#let incr-sec(dir, amt: 1) = {
+  (level: prev => prev + amt, route: route => route + dir)
+}
+
+#let keep-sec(dir) = incr-sec(dir, amt: 0)
 
 #let notes() = context {
   if target() == "bundle" {
