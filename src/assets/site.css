@@ -419,6 +419,7 @@ ul.itemize-ul-list {
 
 .theorem-list-page {
   font-variant-numeric: tabular-nums;
+  float: right;
   white-space: nowrap;
 }
 

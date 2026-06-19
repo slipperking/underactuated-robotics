@@ -175,10 +175,15 @@
   value
 }
 
-#let _page-heading(page) = context {
-  let level = _resolve-heading-level(page.kind, page.level, page-heading-level.get())
-  page-heading-level.update(level)
-  heading(level: level, [#page.title])
+#let _page-heading(page) = {
+  // THIS MUST BE SEPARATED TO ENSURE CONVERGENCE
+  context {
+    let level = _resolve-heading-level(page.kind, page.level, page-heading-level.get())
+    heading(level: level, [#page.title])
+  }
+  page-heading-level.update(
+    old => _resolve-heading-level(page.kind, page.level, old),
+  )
 }
 
 #let _pages() = query(<page-meta>).map(it => it.value)

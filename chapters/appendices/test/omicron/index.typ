@@ -6,3 +6,5 @@
   route: prev => prev + "test/",
   description: "State-space modeling and control-affine dynamics.",
 )
+
+$omicron$
