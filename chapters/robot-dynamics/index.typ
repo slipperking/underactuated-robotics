@@ -14,4 +14,6 @@
   + reinforcement learning (in quadrupeds)
   + imitation learning (in manipulation robots)
   + mechanics optimization (as in ATLAS)
+  
+  #thm-state.thm-restate("def:underactuated-and-fully-actuated", final: true)
 ]

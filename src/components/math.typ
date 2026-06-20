@@ -2,19 +2,17 @@
 
 #let section-numbering-depth = 2
 
-#let _heading-numbers(depth: section-numbering-depth, loc: none) = {
-  let arr = if loc != none {
-    counter(heading).at(loc)
-  } else {
-    counter(heading).get()
-  }
-  arr.slice(0, calc.min(depth, arr.len()))
-}
-
 #let _scoped-number(value, depth: section-numbering-depth, loc: none) = {
-  let nums = _heading-numbers(depth: depth, loc: loc)
-  let scoped = nums + (value,)
-  scoped.map(str).join(".")
+  let prefix = if loc != none {
+    counter(heading).display(at: loc)
+  } else {
+    counter(heading).display()
+  }
+  if prefix == none or prefix == [] {
+    str(value)
+  } else {
+    [#prefix.#value]
+  }
 }
 
 #let reset-heading-scoped-counters() = {

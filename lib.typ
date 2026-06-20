@@ -1,7 +1,7 @@
 #import "/src/components/packages.typ": *
 #import "/src/components/math.typ": *
 #import "/src/components/graphics.typ": *
-#import "/src/components/styles.typ": paper-styles, web-styles
+#import "/src/components/styles.typ": pdf-styles, web-styles
 #import "/src/components/theorems.typ" as _thm
 
 #let theorem = _thm.theorem

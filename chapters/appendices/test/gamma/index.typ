@@ -2,9 +2,11 @@
 #import "/lib.typ": *
 
 #show: docs-subchapter.with(
-  title: [Test $beta$],
-  route: "test",
+  title: [Gamma $beta$],
+  route: "gamma",
+  children: [
+    #include "zeta/index.typ"
+  ],
 )
 
-
-DUHHH
+DUHH

@@ -1,4 +1,4 @@
-#import "/src/components/index.typ": docs-appendix, pdf-doc-label, render-mode
+#import "/src/components/index.typ": docs-appendix, render-mode, thm-state
 #import "/lib.typ": *
 
 #show: docs-appendix.with(
@@ -20,13 +20,16 @@
 ]
 
 #let theorem-entry-web(web-thm, pdf-thm) = {
+  let pdf-link-loc = if pdf-thm == none { web-thm.loc } else { pdf-thm.loc }
+  let pdf-page = if pdf-thm == none { [?] } else { pdf-thm.loc.page() }
+
   html.elem("p", attrs: (class: "theorem-list-entry"), {
     link(web-thm.loc, html.elem("span", attrs: (class: "theorem-list-title"), {
       theorem-heading(web-thm)
       html.elem("span", attrs: (class: "theorem-list-end"), [])
     }))
     html.elem("span", attrs: (class: "theorem-list-dots"), [])
-    link(pdf-thm.loc, html.elem("span", attrs: (class: "theorem-list-page"), [#pdf-thm.loc.page()]))
+    link(pdf-link-loc, html.elem("span", attrs: (class: "theorem-list-page"), [#pdf-page]))
   })
 }
 
@@ -36,9 +39,19 @@
 
 #let theorem-list() = context {
   if render-mode.get() == "web" {
-    html.elem("div", attrs: (id: "theorem-list", class: "theorem-list"), [])
+    let thms = query(<meta:thm-env-counter>).map(marker => marker.value).filter(theorem-filter)
+    let web-thms = thms.filter(thm => thm.render-mode == "web")
+    let pdf-thms = thms.filter(thm => thm.render-mode == "pdf")
+
+    html.elem("div", attrs: (id: "theorem-list", class: "theorem-list"), {
+      for i in range(web-thms.len()) {
+        let web-thm = web-thms.at(i)
+        let pdf-thm = pdf-thms.at(i, default: none)
+        theorem-entry-web(web-thm, pdf-thm)
+      }
+    })
   } else {
-    []
+    thm-state.thm-display(theorem-filter, final: true, fmt: theorem-entry)
   }
 }
 

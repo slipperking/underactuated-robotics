@@ -51,6 +51,8 @@
 #let _ams-solution = solution
 #let qed-symbol = $square$
 
+#let _is-web-render() = state("render-mode").get() == "web" and is-web-target()
+
 #let _html-thm-fmt(head, css-class, numbered: true) = thm => {
   let title = if numbered and thm.number != none {
     [#head #thm.number]
@@ -104,7 +106,7 @@
 }
 
 #let theorem(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-theorem, "Theorem", "thm-theorem")
   } else {
     _ams-theorem.with(fmt: _plain-thm-fmt)
@@ -113,7 +115,7 @@
 }
 
 #let lemma(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-lemma, "Lemma", "thm-lemma")
   } else {
     _ams-lemma.with(fmt: _plain-thm-fmt)
@@ -122,7 +124,7 @@
 }
 
 #let proposition(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-proposition, "Proposition", "thm-proposition")
   } else {
     _ams-proposition.with(fmt: _plain-thm-fmt)
@@ -131,7 +133,7 @@
 }
 
 #let corollary(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-corollary, "Corollary", "thm-corollary")
   } else {
     _ams-corollary.with(fmt: _plain-thm-fmt)
@@ -140,7 +142,7 @@
 }
 
 #let conjecture(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-conjecture, "Conjecture", "thm-conjecture")
   } else {
     _ams-conjecture.with(fmt: _plain-thm-fmt)
@@ -149,7 +151,7 @@
 }
 
 #let definition(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-definition, "Definition", "thm-definition")
   } else {
     _ams-definition
@@ -158,7 +160,7 @@
 }
 
 #let problem(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-problem, "Problem", "thm-problem")
   } else {
     _ams-problem
@@ -167,7 +169,7 @@
 }
 
 #let remark(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-remark, "Remark", "thm-remark", numbered: false)
   } else {
     _ams-remark
@@ -176,7 +178,7 @@
 }
 
 #let example(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-example, "Example", "thm-example")
   } else {
     _ams-example
@@ -185,7 +187,7 @@
 }
 
 #let claim(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _html-thm-env(_ams-claim, "Claim", "thm-claim", numbered: false)
   } else {
     _ams-claim
@@ -194,7 +196,7 @@
 }
 
 #let proof(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _ams-proof.with(fmt: _html-proof-like-fmt("Proof", "thm-proof"))
   } else {
     _ams-proof
@@ -203,7 +205,7 @@
 }
 
 #let solution(..args) = context {
-  let env = if is-web-target() {
+  let env = if _is-web-render() {
     _ams-solution.with(fmt: _html-proof-like-fmt("Solution", "thm-solution", collapsible: true))
   } else {
     _ams-solution

@@ -2,7 +2,7 @@
 #import "packages.typ" as _packages
 #import "math.typ": *
 #import "graphics.typ": *
-#import "styles.typ": paper-styles, web-styles
+#import "styles.typ": pdf-styles, web-styles
 #import "theorems.typ" as _thm
 #import "web.typ" as _web
 

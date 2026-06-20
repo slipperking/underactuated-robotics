@@ -27,15 +27,7 @@
   (thm.ref-fmt)(thm + (loc: target.location(), ref-supplement: ref-supplement))
 }
 
-#let paper-styles(doc) = {
-  set document(
-    title: "Notes on Underactuated Robotics",
-    author: "Slipper King and Saint Even",
-  )
-  set par(justify: true)
-  set page(numbering: "1", margin: 1.75in)
-
-  show: thm-rules.with(qed-symbol: qed-symbol)
+#let shared-styles(doc) = {
   show math.equation: it => {
     let label = it.fields().at("label", default: none)
     if label != none {
@@ -54,6 +46,19 @@
       it
     }
   }
+  doc
+}
+
+#let pdf-styles(doc) = {
+  show: shared-styles
+  set document(
+    title: "Notes on Underactuated Robotics",
+    author: "Slipper King and Saint Even",
+  )
+  set par(justify: true)
+  set page(numbering: "1", margin: 1.75in)
+
+  show: thm-rules.with(qed-symbol: qed-symbol)
 
   set figure(placement: alignment.top)
   show figure.caption: it => context [
@@ -80,13 +85,23 @@
 }
 
 #let web-styles(doc) = {
+  show: shared-styles
   set document(
     title: "Notes on Underactuated Robotics",
     author: "Slipper King and Saint Even",
   )
-  set par(justify: true)
-  set math.equation(numbering: none)
 
+  show math.equation: it => {
+    if it.block and it.numbering != none {
+      let number = counter(math.equation).display(it.numbering)
+      it.body + tag(number)
+    } else {
+      it
+    }
+  }
+
+  set par(justify: true)
+  show heading: it => [#it#heading-reset-marker(it.level)]
   show math.equation.where(block: true): it => html.elem("div", attrs: (class: "display-math"), it)
   show figure.where(kind: "thm-env"): it => it.body
   show ref: _web-theorem-ref

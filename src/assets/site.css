@@ -267,6 +267,10 @@ h3 {
   line-height: 1.12;
 }
 
+.page-source-heading {
+  display: none;
+}
+
 .content>.page-title+h1,
 .content>.page-title+h2,
 .content>.page-title+h3,
@@ -290,7 +294,7 @@ h3 {
 
 p {
   margin: 0 0 1em;
-  text-align: left;
+  text-align: justify;
   hyphens: auto;
 }
 
@@ -333,6 +337,26 @@ p {
   background: var(--accent-soft);
   font: 700 0.9rem var(--sans);
   text-decoration: none;
+}
+
+.button-secondary {
+  border-color: var(--line-strong);
+  color: var(--ink);
+  background: var(--paper);
+  cursor: pointer;
+}
+
+.not-found-copy {
+  max-width: 34rem;
+  color: var(--muted);
+  text-align: left;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.15rem;
 }
 
 ul.itemize-ul-list {
@@ -435,6 +459,7 @@ ul.itemize-ul-list {
 
 .theorem-list-page {
   font-variant-numeric: tabular-nums;
+  float: right;
   white-space: nowrap;
 }
 
@@ -446,58 +471,10 @@ ul.itemize-ul-list {
   text-decoration: none;
 }
 
-.ref-link-group {
-  position: relative;
-  display: inline-flex;
-  align-items: baseline;
-}
-
-.link-choice-tooltip {
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  z-index: 40;
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.32rem;
-  border: 1px solid var(--line-strong);
-  background: var(--paper);
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--ink) 14%, transparent);
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 0.25rem);
-  transition: opacity 120ms ease, transform 120ms ease;
-  white-space: nowrap;
-}
-
-.ref-link-group:hover>.link-choice-tooltip,
-.ref-link-group:focus-within>.link-choice-tooltip {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, 0);
-}
-
-.link-choice-tooltip a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.65rem;
-  padding: 0.18rem 0.42rem;
-  border: 1px solid transparent;
-  color: var(--accent-ink);
-  font: 720 0.72rem/1.2 var(--sans);
-  text-decoration: none;
-}
-
-.link-choice-tooltip a:hover {
-  border-color: var(--line);
-  background: var(--accent-soft);
-}
-
 .equation-tag,
-.tag {
-  color: var(--muted);
-  font-size: 0.86rem;
+.eq-tag {
+  color: var(--ink);
+  float: right;
   line-height: 1;
   white-space: nowrap;
 }
@@ -506,7 +483,7 @@ ul.itemize-ul-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: 0.75rem;
+  column-gap: 0;
   width: 100%;
   margin: 0.72rem auto 0.95rem;
 }

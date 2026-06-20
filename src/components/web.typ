@@ -1,4 +1,4 @@
-#import "styles.typ": paper-styles, web-styles
+#import "styles.typ": pdf-styles, web-styles
 #import "theorems.typ": theorem-toc-entry
 #import "packages.typ": thm-counter, thm-state
 #import "/src/source.typ" as source
@@ -266,7 +266,10 @@
 
 #let _local-toc(current) = context {
   let doc-label = label("doc-" + current.id)
-  let headings = query(selector(heading).within(doc-label)).filter(h => h.level > 1)
+  let first-heading = _first-page-heading(current)
+  let headings = query(selector(heading).within(doc-label)).filter(h =>
+    h.level > 1 and (first-heading == none or h.location() != first-heading.location())
+  )
 
   let entries = ()
   for h in headings {
@@ -346,10 +349,30 @@
 
 #let _pdf-cover() = source.pdf-cover(outline-target: selector(heading).within(pdf-doc-label))
 
+#let _pdf-document(path: none) = {
+  let body = [
+    #[
+      #show: pdf-styles
+      #render-mode.update("pdf")
+      #route-folders.update(())
+      #thm-counter.thm-counters.update((:))
+      #thm-state.thm-stored.update(())
+      #include "/chapters/index.typ"
+    ] #pdf-doc-label
+  ]
+
+  if path == none {
+    body
+  } else {
+    document(path, format: "pdf", title: notes-title)[#body]
+  }
+}
+
 #let _html-page(page, body) = [
   #metadata(_metadata-page(page)) <page-meta>
   #document(page.doc-path, title: _plain-text(page.title))[
     #show: web-styles
+    #counter(math.equation).update(0)
     #thm-counter.thm-counters.update((:))
     #thm-state.thm-stored.update(())
     #html.elem("link", attrs: (rel: "stylesheet", href: _asset-href(page.path, "assets/site.css")))
@@ -373,6 +396,54 @@
     #html.elem("script", attrs: (src: _asset-href(page.path, "assets/site.js")), [])
   ] #label("doc-" + page.id)
 ]
+
+#let _not-found-page() = {
+  let page = (
+    id: "not-found",
+    title: "Page Not Found",
+    route: "/404/",
+    path: "404.html",
+    doc-path: "/404.html",
+    kind: "not-found",
+    level: 1,
+    heading-level: 1,
+    description: none,
+  )
+
+  document(page.doc-path, title: _plain-text(page.title))[
+    #show: web-styles
+    #html.elem("link", attrs: (rel: "stylesheet", href: _asset-href(page.path, "assets/site.css")))
+    #_topbar(page)
+    #html.elem("div", attrs: (class: "layout"))[
+      #html.elem("aside", attrs: (class: "sidebar-left"))[
+        #_global-nav(page)
+      ]
+      #html.elem("main", attrs: (class: "content not-found", id: "main"))[
+        #html.elem("h1", attrs: (class: "page-title"), [Page Not Found])
+        #html.elem("p", attrs: (class: "not-found-copy"), [
+          This page is not part of the current notes build.
+        ])
+        #html.elem("div", attrs: (class: "not-found-actions"))[
+          #html.elem("a", attrs: (class: "button", href: _href-from(page.path, "index.html")), [Home])
+          #html.elem(
+            "button",
+            attrs: (
+              class: "button button-secondary",
+              type: "button",
+              onclick: "if (history.length > 1) history.back(); else location.href = 'index.html';",
+            ),
+            [Back],
+          )
+        ]
+      ]
+      #html.elem("aside", attrs: (class: "sidebar-right"))[
+        #_local-toc(page)
+      ]
+    ]
+    #html.elem("div", attrs: (class: "sidebar-backdrop", id: "sidebar-backdrop"))
+    #html.elem("script", attrs: (src: _asset-href(page.path, "assets/site.js")), [])
+  ]
+}
 
 #let _docs-page(
   title: none,
@@ -403,7 +474,10 @@
       let page-body = if cover {
         _cover-content(page)
       } else if heading {
-        [#_page-heading(page) #body]
+        [
+          #html.elem("div", attrs: (class: "page-source-heading"), _page-heading(page))
+          #body
+        ]
       } else {
         body
       }
@@ -434,17 +508,12 @@
 #let notes() = context {
   if target() == "bundle" {
     include "/src/assets/index.typ"
+    _pdf-document(path: "pdf/notes.pdf")
     render-mode.update("web")
     route-folders.update(())
     include "/chapters/index.typ"
+    _not-found-page()
   } else {
-    [
-      #[
-        #show: paper-styles
-        #render-mode.update("pdf")
-        #route-folders.update(())
-        #include "/chapters/index.typ"
-      ] #pdf-doc-label
-    ]
+    _pdf-document()
   }
 }

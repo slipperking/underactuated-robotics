@@ -345,9 +345,10 @@
 
   let thm-update = context {
     let loc = here()
+    let mode = state("render-mode").get()
     let number-computed = _computed-number(number, numbering, counter, base)
     thm-stored.update(thms => {
-      let thm = thm + (number: number-computed, loc: loc)
+      let thm = thm + (number: number-computed, loc: loc, render-mode: mode)
       if thms == none {
         return (thm,)
       } else {
@@ -365,8 +366,9 @@
       + thm-update
       + context {
         let loc = here()
+        let mode = state("render-mode").get()
         let number-computed = _computed-number(number, numbering, counter, base)
-        let thm = thm + (number: number-computed, loc: loc)
+        let thm = thm + (number: number-computed, loc: loc, render-mode: mode)
         [
           #metadata(thm) <meta:thm-env-counter>
           #fmt(thm)
@@ -454,7 +456,7 @@
   tag-metadata-counter.step()
   context {
     if state("render-mode").get() == "web" {
-      html.div(t, class: "tag")
+      html.div(t, class: "eq-tag")
     } else {
       let key = "pre-extra-diff-" + str(tag-metadata-counter.get().first())
       metadata((
