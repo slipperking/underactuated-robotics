@@ -54,7 +54,7 @@
   /// -> int
   base-level: none
 ) = {
-  thm-counter-update("heading", _heading-counter.get())
+  let heading-count = _heading-counter.get()
   thm-counters.update(counters => {
     if not counter in counters.keys() {
       counters.insert(counter, (0, ))
@@ -62,7 +62,11 @@
 
     let tc = counters.at(counter)
     if base != none {
-      let bc = counters.at(base)
+      let bc = if base == "heading" {
+        heading-count
+      } else {
+        counters.at(base)
+      }
 
       // Pad or chop the base count
       if base-level != none {

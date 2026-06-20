@@ -5,7 +5,8 @@ Typst 0.15+ is required.
 Build the PDF:
 
 ```powershell
-typst compile --package-path packages main.typ main.pdf
+New-Item -ItemType Directory -Force build
+typst compile --package-path packages main.typ build/notes.pdf
 ```
 
 Build the website bundle:
@@ -15,8 +16,9 @@ if (Test-Path web/dist) { Remove-Item web/dist -Recurse -Force }
 typst compile --features html,bundle --format bundle --package-path packages main.typ web/dist
 ```
 
-The bundle build emits the HTML pages, shared assets, and `pdf/notes.pdf`
-directly from Typst. No Python split pipeline is used.
+The bundle build emits the HTML pages and shared assets from Typst, and embeds
+the prebuilt `build/notes.pdf` as `pdf/notes.pdf`. No Python split pipeline is
+used.
 
 ## Authoring structure
 

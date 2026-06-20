@@ -393,8 +393,24 @@ ul.itemize-ul-list {
 
 .theorem-list-entry {
   display: block;
+  position: relative;
   margin: 0 0 0.35rem;
   line-height: 1.45;
+}
+
+.theorem-list-entry::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.pdf-theorem-data {
+  display: none;
+}
+
+.theorem-list-link {
+  color: var(--ink);
+  text-decoration: none;
 }
 
 .theorem-list-title {
@@ -420,6 +436,14 @@ ul.itemize-ul-list {
 .theorem-list-page {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.theorem-list-pdf {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.92em;
+  text-decoration: none;
 }
 
 .ref-link-group {

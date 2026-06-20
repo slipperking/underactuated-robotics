@@ -3,12 +3,13 @@
 
 #docs-appendix(
   title: [Test $alpha / 2$],
-  route: prev => prev + "test/",
+  route: "test",
+  children: [
+    #include "test/index.typ"
+  ],
 )[
   In the field of controlling and training of autonomous systems, there are three popular methods
   + reinforcement learning (in quadrupeds)
   + imitation learning (in manipulation robots)
   + mechanics optimization (as in ATLAS)
 ]
-
-#include "test/index.typ"

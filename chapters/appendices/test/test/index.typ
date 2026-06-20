@@ -1,9 +1,9 @@
-#import "/src/components/index.typ": docs-section
+#import "/src/components/index.typ": docs-subchapter
 #import "/lib.typ": *
 
-#show: docs-section.with(
+#show: docs-subchapter.with(
   title: [Test $beta$],
-  route: prev => prev + "test/",
+  route: "test",
 )
 
 

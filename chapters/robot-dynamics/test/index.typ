@@ -2,12 +2,9 @@
 #import "/lib.typ": *
 
 #show: docs-subchapter.with(
-  title: [System Modeling],
-  route: "system-modeling",
+  title: [Test $ii ee^(ii theta)$],
+  route: "test",
   description: "State-space modeling and control-affine dynamics.",
-  children: [
-    #include "test/index.typ"
-  ],
 )
 
 Usually, controlling a system involves using a loop that adjusts the input of the system by observing the state of the system. How exactly the observants affect the input and how to design this relationship to change the system to a desired state is the study of control theory.
@@ -32,8 +29,8 @@ where $vb(f_1)(dot) in RR^m$ is a vector with dimensionality matching $vb(q) in 
 
 _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence _control affine_), and the equation above is affine in $vb(u)$ since it is a linear transformation of it.
 
-#definition[Underactuated and Fully-Actuated][
+#theorem[ABC][
   The equation in $(dagger)$ is said to be _fully actuated_ iff $vb(f)_2$ is of full row rank, or if
   the $rank vb(f) = dim vb(q)$ (since $dim vb(q)$ is the number of rows of $vb(f)_2$). If instead $rank vb(f)_2 < dim vb(q),$ the system is then said to be _underactuated_.
-] <def:underactuated-and-fully-actuated>
-Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:underactuated-and-fully-actuated
+] <def:abc>
+Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:abc

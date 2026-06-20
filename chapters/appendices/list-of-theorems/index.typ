@@ -3,7 +3,7 @@
 
 #show: docs-appendix.with(
   title: "List of Theorems",
-  route: "/appendices/list-of-theorems/",
+  route: "list-of-theorems",
   description: "Collected theorem-like statements from the notes.",
 )
 
@@ -35,27 +35,10 @@
 }
 
 #let theorem-list() = context {
-  let pdf-markers = query(selector(<meta:thm-env-counter>).within(pdf-doc-label))
   if render-mode.get() == "web" {
-    let web-markers = if pdf-markers.len() == 0 {
-      ()
-    } else {
-      query(selector(<meta:thm-env-counter>).after(pdf-markers.last().location(), inclusive: false))
-    }
-    for i in range(calc.min(web-markers.len(), pdf-markers.len())) {
-      let web-thm = thm-state.thm-stored.at(web-markers.at(i).location()).last()
-      let pdf-thm = thm-state.thm-stored.at(pdf-markers.at(i).location()).last()
-      if theorem-filter(web-thm) and theorem-filter(pdf-thm) {
-        theorem-entry-web(web-thm, pdf-thm)
-      }
-    }
+    html.elem("div", attrs: (id: "theorem-list", class: "theorem-list"), [])
   } else {
-    for marker in pdf-markers {
-      let thm = thm-state.thm-stored.at(marker.location()).last()
-      if theorem-filter(thm) {
-        theorem-entry(thm)
-      }
-    }
+    []
   }
 }
 

@@ -2,6 +2,26 @@
 #import "state.typ": thm-stored
 
 #let _numbering = numbering
+#let _counter = counter
+
+#let _computed-number(number, numbering, counter-name, base) = {
+  if number != auto {
+    return number
+  }
+  if numbering == none {
+    return none
+  }
+  if base == "heading" {
+    let count = thm-counter-get(counter-name)
+    let local = count.last()
+    let prefix = _counter(heading).display()
+    if prefix == none or prefix == [] {
+      return _numbering("1", local)
+    }
+    return [#prefix.#local]
+  }
+  _numbering(numbering, ..thm-counter-get(counter-name))
+}
 
 /// Default formatting function for theorem environments, wrapping everything in a block.
 /// Intended for use in @thm.fmt.
@@ -325,10 +345,7 @@
 
   let thm-update = context {
     let loc = here()
-    let number-computed = number
-    if number == auto and numbering != none {
-      number-computed = _numbering(numbering, ..thm-counter-get(counter))
-    }
+    let number-computed = _computed-number(number, numbering, counter, base)
     thm-stored.update(thms => {
       let thm = thm + (number: number-computed, loc: loc)
       if thms == none {
@@ -346,12 +363,14 @@
   return figure(
     number-update
       + thm-update
-      + // hacky!
-      [#metadata(supplement) <meta:thm-env-counter>]
       + context {
-        let thm-s = thm-stored.get().last()
-        let thm = thm + (number: thm-s.number, loc: thm-s.loc)
-        fmt(thm)
+        let loc = here()
+        let number-computed = _computed-number(number, numbering, counter, base)
+        let thm = thm + (number: number-computed, loc: loc)
+        [
+          #metadata(thm) <meta:thm-env-counter>
+          #fmt(thm)
+        ]
       },
     kind: "thm-env",
     outlined: false,
@@ -549,15 +568,7 @@
       return it
     }
 
-    // let ref-supplement = it.element.supplement
-    // if it.citation.supplement != none {
-    //   ref-supplement = it.citation.supplement
-    // }
-
     let ref-supplement = it.citation.supplement
-    // if (ref-supplement == none or ref-supplement == [] or (ref-supplement.has("text") and ref-supplement.text == "")) {
-    //   ref-supplement = none
-    // }
 
     let targets = query(it.target)
     if targets.len() == 0 {
@@ -579,7 +590,7 @@
       return it
     }
     let thmloc = thms.first().location()
-    let thm = thm-stored.at(thmloc).last()
+    let thm = thms.first().value
     let anchor = if target.func() == figure { loc } else { thmloc }
     return (thm.ref-fmt)(thm + (loc: anchor, ref-supplement: ref-supplement))
   }

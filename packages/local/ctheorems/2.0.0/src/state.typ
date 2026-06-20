@@ -2,7 +2,6 @@
 /// -> state
 #let thm-stored = state("thm-stored", ())
 
-
 /// Displays all theorem environments, can be filtered.
 ///
 /// Every call to @thm appends a `thm` dictionary to @thm-stored.
@@ -339,4 +338,3 @@
     }
   }
 }
-

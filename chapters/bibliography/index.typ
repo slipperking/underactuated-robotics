@@ -3,7 +3,7 @@
 
 #show: docs-backmatter.with(
   title: "Bibliography",
-  route: "/bibliography/",
+  route: "bibliography",
   description: "References cited by the notes.",
 )
 

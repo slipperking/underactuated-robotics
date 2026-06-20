@@ -22,8 +22,9 @@
 #let theorem-toc-entry = _thm.theorem-toc-entry
 
 #let thm-counter = _packages.thm-counter
+#let thm-state = _packages.thm-state
 #let render-mode = _web.render-mode
-#let route-base = _web.route-base
+#let route-folders = _web.route-folders
 #let pdf-doc-label = _web.pdf-doc-label
 #let notes-title = _web.notes-title
 #let course = _web.course
@@ -36,5 +37,6 @@
 #let docs-chapter = _web.docs-chapter
 #let docs-section = _web.docs-section
 #let docs-subchapter = _web.docs-subchapter
+#let docs-subsubchapter = _web.docs-subsubchapter
 #let docs-appendix = _web.docs-appendix
 #let docs-backmatter = _web.docs-backmatter

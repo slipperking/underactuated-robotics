@@ -12,16 +12,7 @@
 #let pdf-doc-label = <pdf-notes>
 
 #let render-mode = state("render-mode", "web")
-#let route-base = state("route-base", "/")
-#let page-heading-level = state("page-heading-level", 0)
-
-#let _resolve-route(route, base) = {
-  if type(route) == function {
-    route(base)
-  } else {
-    route
-  }
-}
+#let route-folders = state("route-folders", ())
 
 #let _normalize-route(route) = {
   let value = route
@@ -32,6 +23,24 @@
     value = value + "/"
   }
   value
+}
+
+#let _route-segment(route) = {
+  if route == none or route == "/" or route == "" {
+    none
+  } else {
+    assert(type(route) == str, message: "route must be a single folder name")
+    assert(not route.contains("/"), message: "route must be a single folder name, not a path")
+    route
+  }
+}
+
+#let _route-from-folders(folders) = {
+  if folders.len() == 0 {
+    "/"
+  } else {
+    "/" + folders.join("/") + "/"
+  }
 }
 
 #let _route-id(route) = {
@@ -54,6 +63,16 @@
   }
 }
 #let _document-path(route) = "/" + _route-path(route)
+
+#let _route-depth(route) = {
+  let route = _normalize-route(route)
+  let inner = route.slice(1, route.len() - 1)
+  if inner == "" {
+    0
+  } else {
+    inner.split("/").filter(part => part != "").len()
+  }
+}
 
 #let _plain-text(value) = {
   if value == none {
@@ -99,6 +118,7 @@
   route: none,
   kind: "section",
   level: 1,
+  heading-level: 1,
   description: none,
 ) = {
   assert(title != none, message: "docs page needs a title")
@@ -112,6 +132,7 @@
     doc-path: _document-path(route),
     kind: kind,
     level: level,
+    heading-level: heading-level,
     description: description,
   )
 }
@@ -141,7 +162,7 @@
 
   if page.kind == "chapter" and number != none {
     [Chapter #number: #title]
-  } else if (page.kind == "section" or page.kind == "subchapter") and number != none {
+  } else if (page.kind == "section" or page.kind == "subchapter" or page.kind == "subsubchapter") and number != none {
     [#sym.section#number #title]
   } else if page.kind == "appendix" and number != none {
     [Appendix #number: #title]
@@ -152,31 +173,45 @@
   }
 }
 
-#let _default-heading-level(kind) = if kind == "chapter" or kind == "appendix" or kind == "frontmatter" or kind == "backmatter" {
+#let _default-page-level(kind) = if kind == "cover" {
+  0
+} else if kind == "chapter" or kind == "appendix" or kind == "frontmatter" or kind == "backmatter" {
   1
+} else if kind == "subchapter" {
+  2
+} else if kind == "subsubchapter" {
+  3
 } else if kind == "section" {
   2
-} else if kind == "subchapter" {
-  3
 } else {
   1
 }
 
-#let _resolve-heading-level(kind, level, previous) = {
+#let _resolve-page-level(kind, level) = {
+  let default = _default-page-level(kind)
   let value = if level == auto {
-    _default-heading-level(kind)
+    default
   } else if type(level) == function {
-    level(previous)
+    level(default)
   } else {
     level
   }
   value
 }
 
+#let _set-route-folders(level, route) = route-folders.update(folders => {
+  let prefix-depth = if folders.len() > 0 and folders.first() == "appendices" { 1 } else { 0 }
+  let keep = calc.min(folders.len(), calc.max(0, prefix-depth + level - 1))
+  let next = folders.slice(0, keep)
+  let segment = _route-segment(route)
+  if segment != none {
+    next.push(segment)
+  }
+  next
+})
+
 #let _page-heading(page) = context {
-  let level = _resolve-heading-level(page.kind, page.level, page-heading-level.get())
-  page-heading-level.update(level)
-  heading(level: level, [#page.title])
+  heading(level: page.heading-level, [#page.title])
 }
 
 #let _pages() = query(<page-meta>).map(it => it.value)
@@ -232,17 +267,10 @@
 #let _local-toc(current) = context {
   let doc-label = label("doc-" + current.id)
   let headings = query(selector(heading).within(doc-label)).filter(h => h.level > 1)
-  let theorem-markers = query(selector(<meta:thm-env-counter>).within(doc-label))
 
   let entries = ()
   for h in headings {
     entries.push((level: h.level, kind: "heading", loc: h.location(), body: _heading-toc-entry(h)))
-  }
-  for marker in theorem-markers {
-    let thm = thm-state.thm-stored.at(marker.location()).last()
-    if thm.supplement != "Proof" and thm.supplement != "Solution" and thm.supplement != "Remark" {
-      entries.push((level: 3, kind: "theorem", loc: thm.loc, body: theorem-toc-entry(thm)))
-    }
   }
   entries = entries.sorted(key: e => e.loc.position().page * 100000 + e.loc.position().y / 1pt)
 
@@ -322,6 +350,8 @@
   #metadata(_metadata-page(page)) <page-meta>
   #document(page.doc-path, title: _plain-text(page.title))[
     #show: web-styles
+    #thm-counter.thm-counters.update((:))
+    #thm-state.thm-stored.update(())
     #html.elem("link", attrs: (rel: "stylesheet", href: _asset-href(page.path, "assets/site.css")))
     #_topbar(page)
     #html.elem("div", attrs: (class: "layout"))[
@@ -352,38 +382,43 @@
   description: none,
   cover: false,
   heading: true,
+  children: none,
   body,
-) = context {
-  let mode = render-mode.get()
-  let parent-route = route-base.get()
-  let route = _resolve-route(route, parent-route)
-  let page = _page-info(
-    title: title,
-    route: route,
-    kind: kind,
-    level: level,
-    description: description,
-  )
+) = {
+  let page-level = _resolve-page-level(kind, level)
+  _set-route-folders(page-level, route)
+  context {
+    let mode = render-mode.get()
+    let route = _route-from-folders(route-folders.get())
+    let page = _page-info(
+      title: title,
+      route: route,
+      kind: kind,
+      level: page-level,
+      heading-level: page-level,
+      description: description,
+    )
 
-  if target() == "bundle" and mode == "web" {
-    let page-body = if cover {
-      _cover-content(page)
-    } else if heading {
-      [#_page-heading(page) #body]
+    if target() == "bundle" and mode == "web" {
+      let page-body = if cover {
+        _cover-content(page)
+      } else if heading {
+        [#_page-heading(page) #body]
+      } else {
+        body
+      }
+      _html-page(page, page-body)
+    } else if cover {
+      _pdf-cover()
     } else {
+      if heading {
+        _page-heading(page)
+      }
       body
     }
-    _html-page(page, page-body)
-    route-base.update(page.route)
-  } else if cover {
-    _pdf-cover()
-    route-base.update(page.route)
-  } else {
-    if heading {
-      _page-heading(page)
-    }
-    body
-    route-base.update(page.route)
+  }
+  if children != none {
+    children
   }
 }
 
@@ -392,32 +427,22 @@
 #let docs-chapter(..args) = _docs-page(kind: "chapter", ..args)
 #let docs-section(..args) = _docs-page(kind: "section", ..args)
 #let docs-subchapter(..args) = _docs-page(kind: "subchapter", ..args)
+#let docs-subsubchapter(..args) = _docs-page(kind: "subsubchapter", ..args)
 #let docs-appendix(..args) = _docs-page(kind: "appendix", ..args)
 #let docs-backmatter(..args) = _docs-page(kind: "backmatter", heading: false, ..args)
 
 #let notes() = context {
   if target() == "bundle" {
     include "/src/assets/index.typ"
-    [
-      #document("pdf/notes.pdf", title: [#notes-title], author: (authors,))[
-        #show: paper-styles
-        #render-mode.update("pdf")
-        #route-base.update("/")
-        #page-heading-level.update(0)
-        #include "/chapters/index.typ"
-      ] #pdf-doc-label
-    ]
     render-mode.update("web")
-    route-base.update("/")
-    page-heading-level.update(0)
+    route-folders.update(())
     include "/chapters/index.typ"
   } else {
     [
       #[
         #show: paper-styles
         #render-mode.update("pdf")
-        #route-base.update("/")
-        #page-heading-level.update(0)
+        #route-folders.update(())
         #include "/chapters/index.typ"
       ] #pdf-doc-label
     ]

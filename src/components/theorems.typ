@@ -4,6 +4,39 @@
   name-fmt: x => emph(smallcaps([(#x)])),
 )
 
+#let _plain-text(value) = {
+  if value == none {
+    ""
+  } else if type(value) == str {
+    value
+  } else if type(value) == int or type(value) == float or type(value) == decimal {
+    str(value)
+  } else if type(value) == content {
+    let fields = value.fields()
+    if fields.keys().contains("text") {
+      fields.text
+    } else if fields.keys().contains("children") {
+      fields.children.map(_plain-text).join("")
+    } else if fields.keys().contains("body") {
+      _plain-text(fields.body)
+    } else if fields.keys().contains("child") {
+      _plain-text(fields.child)
+    } else if value.func() == [ ].func() {
+      " "
+    } else {
+      ""
+    }
+  } else {
+    str(value)
+  }
+}
+
+#let _slug(value) = lower(_plain-text(value))
+  .replace(" ", "-")
+  .replace(".", "-")
+  .replace("(", "")
+  .replace(")", "")
+
 #let _ams-theorem = theorem
 #let _ams-lemma = lemma
 #let _ams-proposition = proposition
@@ -24,8 +57,17 @@
   } else {
     [#head]
   }
+  let id = if numbered and thm.number != none {
+    "thm-" + _slug(head) + "-" + _slug(thm.number)
+  } else {
+    none
+  }
+  let attrs = (class: "thm-box " + css-class)
+  if id != none {
+    attrs.insert("id", id)
+  }
 
-  html.elem("div", attrs: (class: "thm-box " + css-class), {
+  html.elem("div", attrs: attrs, {
     html.elem("p", attrs: (class: "thm-head"), {
       html.elem("strong", title)
       if thm.name != none [ (#thm.name)]

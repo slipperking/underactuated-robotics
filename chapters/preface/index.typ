@@ -3,7 +3,7 @@
 
 #show: docs-frontmatter.with(
   title: "Preface",
-  route: "/preface/",
+  route: "preface",
   description: "A short orientation to the course notes.",
 )
 

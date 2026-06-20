@@ -4,3 +4,4 @@
 #asset("assets/theme.svg", read("/src/assets/theme.svg"))
 #asset("assets/menu.svg", read("/src/assets/menu.svg"))
 #asset("assets/toc.svg", read("/src/assets/toc.svg"))
+#asset("pdf/notes.pdf", read("/build/notes.pdf", encoding: none))
