@@ -2,7 +2,7 @@
 #import "packages.typ" as _packages
 #import "math.typ": *
 #import "graphics.typ": *
-#import "styles.typ": pdf-styles, web-styles
+#import "styles.typ": pdf-styles, web-styles, lbl
 #import "theorems.typ" as _thm
 #import "web.typ" as _web
 
@@ -21,8 +21,8 @@
 #let qed-symbol = _thm.qed-symbol
 #let theorem-toc-entry = _thm.theorem-toc-entry
 
-#let thm-counter = _packages.thm-counter
-#let thm-state = _packages.thm-state
+#let thm-counter = _thm.thm-counter
+#let thm-state = _thm.thm-state
 #let render-mode = _web.render-mode
 #let route-folders = _web.route-folders
 #let pdf-doc-label = _web.pdf-doc-label

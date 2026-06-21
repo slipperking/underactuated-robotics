@@ -1,6 +1,5 @@
-#import "styles.typ": pdf-doc-label, pdf-styles, web-doc-label, web-styles
-#import "theorems.typ": theorem-toc-entry
-#import "packages.typ": thm-counter, thm-state
+#import "styles.typ": pdf-doc-label, pdf-styles, web-doc-label, web-styles, lbl
+#import "theorems.typ": *
 #import "/src/source.typ" as source
 
 #let notes-title = source.title
@@ -215,9 +214,7 @@
   if page.label == none {
     heading(level: page.heading-level, [#page.title])
   } else {
-    [
-      #heading(level: page.heading-level, [#page.title]) #page.label
-    ]
+    lbl(page.label, heading(level: page.heading-level, [#page.title]))
   }
 }
 

@@ -1,4 +1,4 @@
-#import "/src/components/index.typ": docs-subchapter
+#import "/src/components/index.typ": *
 #import "/lib.typ": *
 
 #show: docs-subchapter.with(
@@ -7,6 +7,6 @@
   description: "State-space modeling and control-affine dynamics.",
 )
 #lorem(200)
-$ omicron $ <eq:omicron>
+#lbl(<eq:omicron>, $ omicron $)
 #lorem(200)
 @eq:omicron, @eq:euler-energy-mass

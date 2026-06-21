@@ -5,10 +5,43 @@
 #let pdf-doc-label = <pdf-notes>
 #let web-doc-label = <web-notes>
 
-#let secondary-label-assignment = state("secondary-label-assignment", 0)
+#let secondary-label-assignment-counter = state("secondary-label-assignment", 0)
+#let secondary-label-assignment-map = state("secondary-label-assignment-map", (:))
+
+#let lbl(original-label, body) = {
+  context {
+    let counter = secondary-label-assignment-counter.get()
+    let unique-label = label("secondary-label-" + str(counter))
+
+    [#body#unique-label]
+
+    secondary-label-assignment-map.update(map => {
+      let array = map.at(str(original-label), default: ())
+      map.insert(str(original-label), array + (unique-label,))
+      map
+    })
+  }
+  secondary-label-assignment-counter.update(c => c + 1)
+}
 
 #let shared-styles(doc, mode: "pdf") = {
-  show: thm-rules.with(qed-symbol: qed-symbol)
+  show ref: it => {
+    if type(it.target) == label {
+      context {
+        let label-matches = secondary-label-assignment-map.final().at(str(it.target), default: ())
+
+        if label-matches.len() != 0 {
+          for _label in label-matches {
+            ref(_label)
+          }
+        } else {
+          it
+        }
+      }
+    } else {
+      it
+    }
+  }
   show math.equation: it => {
     let label = it.fields().at("label", default: none)
     if label != none {
@@ -17,14 +50,8 @@
       it
     }
   }
-  let label = if mode == "pdf" {
-    pdf-doc-label
-  } else {
-    web-doc-label
-  }
   show ref: it => {
-    // todo: perhaps use a show rule with a state of some sort to auto assign a unique identifier to each element so we can have pdf html cross support.
-    let targets = query(selector(it.target).within(label))
+    let targets = query(selector(it.target))
     if targets.len() == 0 {
       return it
     }
@@ -37,6 +64,7 @@
       it
     }
   }
+  show: thm-rules.with(qed-symbol: qed-symbol)
   doc
 }
 

@@ -566,35 +566,38 @@
   }
 
   show ref: it => {
-    if type(it.target) != label {
-      return it
-    }
-
-    let ref-supplement = it.citation.supplement
-
     let targets = query(it.target)
     if targets.len() == 0 {
       return it
     }
-
-    let target = if state("render-mode").get() == "web" {
-      targets.last()
-    } else {
+    let target = if state("render-mode").get() == "pdf" {
       targets.first()
+    } else {
+      targets.last()
     }
-    if target.func() == figure and target.kind != "thm-env" {
+
+    if target.func() != figure {
       return it
     }
+    if target.kind != "thm-env" {
+      return it
+    }
+
+    // let ref-supplement = it.element.supplement
+    // if it.citation.supplement != none {
+    //   ref-supplement = it.citation.supplement
+    // }
+
+    let ref-supplement = it.citation.supplement
+    // if (ref-supplement == none or ref-supplement == [] or (ref-supplement.has("text") and ref-supplement.text == "")) {
+    //   ref-supplement = none
+    // }
 
     let loc = target.location()
-    let thms = query(selector(<meta:thm-env-counter>).after(loc, inclusive: true))
-    if thms.len() == 0 {
-      return it
-    }
+    let thms = query(selector(<meta:thm-env-counter>).after(loc))
     let thmloc = thms.first().location()
-    let thm = thms.first().value
-    let anchor = if target.func() == figure { loc } else { thmloc }
-    return (thm.ref-fmt)(thm + (loc: anchor, ref-supplement: ref-supplement))
+    let thm = thm-stored.at(thmloc).last()
+    return (thm.ref-fmt)(thm + (ref-supplement: ref-supplement))
   }
 
   show math.equation: eq => {
