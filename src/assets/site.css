@@ -400,6 +400,7 @@ ul.itemize-ul-list {
   border-left-color: var(--gold);
 }
 
+
 .thm-remark,
 .thm-claim {
   border-left-color: var(--muted);
@@ -477,6 +478,10 @@ ul.itemize-ul-list {
   float: right;
   line-height: 1;
   white-space: nowrap;
+}
+
+.typst-multi-label-list {
+  display: none
 }
 
 .display-math {

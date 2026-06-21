@@ -31,8 +31,20 @@
         let label-matches = secondary-label-assignment-map.final().at(str(it.target), default: ())
 
         if label-matches.len() != 0 {
-          for _label in label-matches {
-            ref(_label)
+          if mode == "web" {
+            ref(label-matches.last())
+            html.span(
+              {
+                for _label in label-matches {
+                  html.span(ref(_label), class: "typst-multi-label")
+                }
+              },
+              class: "typst-multi-label-list",
+            )
+          } else {
+            for _label in label-matches {
+              ref(_label)
+            }
           }
         } else {
           it

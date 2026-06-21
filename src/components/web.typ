@@ -358,9 +358,6 @@
     #[
       #show: pdf-styles
       #render-mode.update("pdf")
-      #route-folders.update(())
-      #thm-counter.thm-counters.update((:))
-      #thm-state.thm-stored.update(())
       #include "/chapters/index.typ"
     ] #pdf-doc-label
   ]
@@ -425,7 +422,7 @@
       #html.elem("main", attrs: (class: "content not-found", id: "main"))[
         #html.elem("h1", attrs: (class: "page-title"), [Page Not Found])
         #html.elem("p", attrs: (class: "not-found-copy"), [
-          This page is not part of the current notes build.
+          This page is not part of the current build.
         ])
         #html.elem("div", attrs: (class: "not-found-actions"))[
           #html.elem("a", attrs: (class: "button", href: _href-from(page.path, "index.html")), [Home])
@@ -517,7 +514,6 @@
     _pdf-document(path: "pdf/notes.pdf")
 
     render-mode.update("web")
-    route-folders.update(())
     [
       #{
         include "/chapters/index.typ"

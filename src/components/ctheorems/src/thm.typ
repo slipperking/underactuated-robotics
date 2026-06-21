@@ -292,7 +292,7 @@
     let supplement = thm.supplement
     if thm.ref-supplement != none { supplement = thm.ref-supplement }
     if supplement != none and supplement != [] { supplement = [#supplement~] }
-    [#supplement#link(thm.loc, thm.number)]
+    link(thm.loc, [#supplement#thm.number])
   },
 ) = {
   if name == auto {
