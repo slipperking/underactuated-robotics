@@ -5,6 +5,8 @@
 #let pdf-doc-label = <pdf-notes>
 #let web-doc-label = <web-notes>
 
+#let secondary-label-assignment = state("secondary-label-assignment", 0)
+
 #let shared-styles(doc, mode: "pdf") = {
   show: thm-rules.with(qed-symbol: qed-symbol)
   show math.equation: it => {
@@ -21,6 +23,7 @@
     web-doc-label
   }
   show ref: it => {
+    // todo: perhaps use a show rule with a state of some sort to auto assign a unique identifier to each element so we can have pdf html cross support.
     let targets = query(selector(it.target).within(label))
     if targets.len() == 0 {
       return it
