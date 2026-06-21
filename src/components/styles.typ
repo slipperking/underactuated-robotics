@@ -42,8 +42,16 @@
               class: "typst-multi-label-list",
             )
           } else {
-            for _label in label-matches {
-              ref(_label)
+            ref(label-matches.first())
+            if label-matches.len() > 1 {
+              let html-label = label-matches.last()
+              $#[]^#box(
+                text(fill: black.transparentize(50%), link(html-label, $math.mono("HTML")$), size: 0.5em),
+                outset: 0.5pt,
+                inset: 1.5pt,
+                stroke: 0.5pt + black.transparentize(50%),
+                radius: 2pt,
+              )$
             }
           }
         } else {

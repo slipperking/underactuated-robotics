@@ -169,8 +169,108 @@
     }
   }
 
+  function setupReferenceTooltips() {
+    var tooltip = document.createElement("div");
+    tooltip.className = "ref-tooltip";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.hidden = true;
+    document.body.appendChild(tooltip);
+
+    var activeTrigger = null;
+    var hideTimer = null;
+
+    function clearHideTimer() {
+      if (hideTimer) {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+      }
+    }
+
+    function scheduleHide() {
+      clearHideTimer();
+      hideTimer = setTimeout(function () {
+        tooltip.hidden = true;
+        activeTrigger = null;
+      }, 300);
+    }
+
+    function linkLabel(link, index, links) {
+      var href = link.getAttribute("href") || "";
+      if (links.length === 1) return "Open";
+      if (index === 0 || /\.pdf(?:#|$)/i.test(href)) return "PDF";
+      if (index === links.length - 1) return "HTML";
+      return "Link " + (index + 1);
+    }
+
+    function placeTooltip(trigger) {
+      var rect = trigger.getBoundingClientRect();
+      var tipRect = tooltip.getBoundingClientRect();
+      var gap = 8;
+      var left = rect.left + rect.width / 2 - tipRect.width / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+      tooltip.style.left = left + "px";
+      tooltip.style.top = Math.min(rect.bottom + gap, window.innerHeight - tipRect.height - 8) + "px";
+    }
+
+    function showTooltip(trigger, source) {
+      clearHideTimer();
+      activeTrigger = trigger;
+      tooltip.textContent = "";
+
+      var links = Array.from(source.querySelectorAll("a[href]"));
+      links.forEach(function (link, index) {
+        var item = document.createElement("a");
+        item.href = link.getAttribute("href");
+        item.textContent = linkLabel(link, index, links);
+        tooltip.appendChild(item);
+      });
+
+      tooltip.hidden = links.length === 0;
+      if (!tooltip.hidden) {
+        placeTooltip(trigger);
+      }
+    }
+
+    document.querySelectorAll(".typst-multi-label-list").forEach(function (source) {
+      var trigger = source.previousElementSibling;
+      if (!trigger || !trigger.matches("a[href]")) return;
+
+      trigger.classList.add("ref-with-tooltip");
+      trigger.addEventListener("mouseenter", function () {
+        showTooltip(trigger, source);
+      });
+      trigger.addEventListener("mouseleave", scheduleHide);
+      trigger.addEventListener("focus", function () {
+        showTooltip(trigger, source);
+      });
+      trigger.addEventListener("blur", scheduleHide);
+    });
+
+    tooltip.addEventListener("mouseenter", clearHideTimer);
+    tooltip.addEventListener("mouseleave", scheduleHide);
+    tooltip.addEventListener("focusin", clearHideTimer);
+    tooltip.addEventListener("focusout", scheduleHide);
+    addEventListener("scroll", function () {
+      if (!tooltip.hidden && activeTrigger) {
+        placeTooltip(activeTrigger);
+      }
+    }, { passive: true });
+    addEventListener("resize", function () {
+      if (!tooltip.hidden && activeTrigger) {
+        placeTooltip(activeTrigger);
+      }
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        tooltip.hidden = true;
+        activeTrigger = null;
+      }
+    });
+  }
+
   normalizeDisplayMath();
   buildLocalToc();
+  setupReferenceTooltips();
   fillTheoremLeaders();
   addEventListener("resize", function () {
     fillTheoremLeaders();

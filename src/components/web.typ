@@ -375,7 +375,6 @@
     #show: web-styles
     #counter(math.equation).update(0)
     #thm-counter.thm-counters.update((:))
-    #thm-state.thm-stored.update(())
     #html.elem("link", attrs: (rel: "stylesheet", href: _asset-href(page.path, "assets/site.css")))
     #_topbar(page)
     #html.elem("div", attrs: (class: "layout"))[

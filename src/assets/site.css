@@ -42,6 +42,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--topbar-height) + 1rem);
+  text-align: justify;
 }
 
 body {
@@ -229,6 +230,7 @@ h3,
 h4,
 h5,
 h6 {
+  text-align: left;
   line-height: 1.18;
   letter-spacing: 0;
 }
@@ -482,6 +484,45 @@ ul.itemize-ul-list {
 
 .typst-multi-label-list {
   display: none
+}
+
+.ref-with-tooltip {
+  cursor: pointer;
+}
+
+.ref-tooltip {
+  position: fixed;
+  z-index: 40;
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--paper);
+  box-shadow: 0 0.65rem 1.6rem rgba(0, 0, 0, 0.14);
+  font: 700 0.75rem/1.2 var(--sans);
+}
+
+.ref-tooltip[hidden] {
+  display: none;
+}
+
+.ref-tooltip a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  padding: 0.28rem 0.48rem;
+  border-radius: 3px;
+  color: var(--accent-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ref-tooltip a:hover,
+.ref-tooltip a:focus {
+  background: var(--accent-soft);
+  color: var(--ink);
+  outline: none;
 }
 
 .display-math {
