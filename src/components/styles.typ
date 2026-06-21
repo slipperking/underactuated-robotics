@@ -2,32 +2,11 @@
 #import "math.typ": *
 #import "theorems.typ": *
 
-#let _web-theorem-ref(it) = {
-  if type(it.target) != label {
-    return it
-  }
+#let pdf-doc-label = <pdf-notes>
+#let web-doc-label = <web-notes>
 
-  let targets = query(it.target)
-  if targets.len() == 0 {
-    return it
-  }
-
-  let target = targets.last()
-  if target.func() == math.equation {
-    return it
-  }
-
-  let markers = query(selector(<meta:thm-env-counter>).after(target.location(), inclusive: true))
-  if markers.len() == 0 {
-    return [#str(it.target)]
-  }
-
-  let thm = markers.first().value
-  let ref-supplement = it.citation.supplement
-  (thm.ref-fmt)(thm + (loc: target.location(), ref-supplement: ref-supplement))
-}
-
-#let shared-styles(doc) = {
+#let shared-styles(doc, mode: "pdf") = {
+  show: thm-rules.with(qed-symbol: qed-symbol)
   show math.equation: it => {
     let label = it.fields().at("label", default: none)
     if label != none {
@@ -36,12 +15,21 @@
       it
     }
   }
-
+  let label = if mode == "pdf" {
+    pdf-doc-label
+  } else {
+    web-doc-label
+  }
   show ref: it => {
-    let el = it.element
-    if el != none and el.func() == math.equation {
-      let eq-num = counter(math.equation).at(el.location()).at(0) + 1
-      link(el.location(), [(#_scoped-number(eq-num, loc: el.location()))])
+    let targets = query(selector(it.target).within(label))
+    if targets.len() == 0 {
+      return it
+    }
+
+    let target = targets.last()
+    if target.func() == math.equation {
+      let eq-num = counter(math.equation).at(target.location()).at(0) + 1
+      link(target.location(), [(#_scoped-number(eq-num, loc: target.location()))])
     } else {
       it
     }
@@ -50,15 +38,13 @@
 }
 
 #let pdf-styles(doc) = {
-  show: shared-styles
+  show: shared-styles.with(mode: "pdf")
   set document(
     title: "Notes on Underactuated Robotics",
     author: "Slipper King and Saint Even",
   )
   set par(justify: true)
   set page(numbering: "1", margin: 1.75in)
-
-  show: thm-rules.with(qed-symbol: qed-symbol)
 
   set figure(placement: alignment.top)
   show figure.caption: it => context [
@@ -85,7 +71,7 @@
 }
 
 #let web-styles(doc) = {
-  show: shared-styles
+  show: shared-styles.with(mode: "web")
   set document(
     title: "Notes on Underactuated Robotics",
     author: "Slipper King and Saint Even",
@@ -104,7 +90,6 @@
   show heading: it => [#it#heading-reset-marker(it.level)]
   show math.equation.where(block: true): it => html.elem("div", attrs: (class: "display-math"), it)
   show figure.where(kind: "thm-env"): it => it.body
-  show ref: _web-theorem-ref
   show: itemize.default-enum-list
   show: itemize.config.ref.with(supplement: "Part")
   set enum(numbering: "1")

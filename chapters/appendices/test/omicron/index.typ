@@ -9,4 +9,4 @@
 #lorem(200)
 $ omicron $ <eq:omicron>
 #lorem(200)
-
+@eq:omicron, @eq:euler-energy-mass

@@ -8,6 +8,7 @@
   children: [
     #include "test/index.typ"
   ],
+  label: <sec:system-modeling>
 )
 Usually, controlling a system involves using a loop that adjusts the input of the system by observing the state of the system. How exactly the observants affect the input and how to design this relationship to change the system to a desired state is the study of control theory.
 
@@ -32,6 +33,8 @@ where $vb(f_1)(dot) in RR^m$ is a vector with dimensionality matching $vb(q) in 
 _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence _control affine_), and the equation above is affine in $vb(u)$ since it is a linear transformation of it.
 
 $ E = m c^2 $ <eq:euler-energy-mass> // test
+
+@sec:system-modeling
 
 #definition([Underactuated and Fully-Actuated], restate: true, restate-keys: (
   "def:underactuated-and-fully-actuated",

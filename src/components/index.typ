@@ -26,6 +26,7 @@
 #let render-mode = _web.render-mode
 #let route-folders = _web.route-folders
 #let pdf-doc-label = _web.pdf-doc-label
+#let web-doc-label = _web.web-doc-label
 #let notes-title = _web.notes-title
 #let course = _web.course
 #let authors = _web.authors

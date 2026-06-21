@@ -648,7 +648,7 @@
       }
     }
 
-    if eq.numbering == none and eq.block {
+    context if eq.numbering == none and eq.block and state("render-mode").get() == "pdf" {
       layout(size => {
         if (size.width / 1pt).is-infinite() {
           // infinite or unbounded width

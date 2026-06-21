@@ -1,4 +1,4 @@
-#import "styles.typ": pdf-styles, web-styles
+#import "styles.typ": pdf-doc-label, pdf-styles, web-doc-label, web-styles
 #import "theorems.typ": theorem-toc-entry
 #import "packages.typ": thm-counter, thm-state
 #import "/src/source.typ" as source
@@ -9,7 +9,6 @@
 #let date = source.date
 #let source-url = source.source-url
 #let abstract = source.abstract
-#let pdf-doc-label = <pdf-notes>
 
 #let render-mode = state("render-mode", "web")
 #let route-folders = state("route-folders", ())
@@ -120,6 +119,7 @@
   level: 1,
   heading-level: 1,
   description: none,
+  label: none,
 ) = {
   assert(title != none, message: "docs page needs a title")
   assert(route != none, message: "docs page needs a route")
@@ -134,6 +134,7 @@
     level: level,
     heading-level: heading-level,
     description: description,
+    label: label,
   )
 }
 
@@ -210,8 +211,14 @@
   next
 })
 
-#let _page-heading(page) = context {
-  heading(level: page.heading-level, [#page.title])
+#let _page-heading(page) = {
+  if page.label == none {
+    heading(level: page.heading-level, [#page.title])
+  } else {
+    [
+      #heading(level: page.heading-level, [#page.title]) #page.label
+    ]
+  }
 }
 
 #let _pages() = query(<page-meta>).map(it => it.value)
@@ -267,9 +274,9 @@
 #let _local-toc(current) = context {
   let doc-label = label("doc-" + current.id)
   let first-heading = _first-page-heading(current)
-  let headings = query(selector(heading).within(doc-label)).filter(h =>
+  let headings = query(selector(heading).within(doc-label)).filter(h => (
     h.level > 1 and (first-heading == none or h.location() != first-heading.location())
-  )
+  ))
 
   let entries = ()
   for h in headings {
@@ -454,6 +461,7 @@
   cover: false,
   heading: true,
   children: none,
+  label: none,
   body,
 ) = {
   let page-level = _resolve-page-level(kind, level)
@@ -468,6 +476,7 @@
       level: page-level,
       heading-level: page-level,
       description: description,
+      label: label,
     )
 
     if target() == "bundle" and mode == "web" {
@@ -509,10 +518,15 @@
   if target() == "bundle" {
     include "/src/assets/index.typ"
     _pdf-document(path: "pdf/notes.pdf")
+
     render-mode.update("web")
     route-folders.update(())
-    include "/chapters/index.typ"
-    _not-found-page()
+    [
+      #{
+        include "/chapters/index.typ"
+        _not-found-page()
+      } #web-doc-label
+    ]
   } else {
     _pdf-document()
   }
