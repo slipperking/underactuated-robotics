@@ -16,13 +16,9 @@
 #solution[
   #lorem(40)
 
-  + k
-  + g // #lbl(<itm:enum2>, [f])
-  + f // qedhere
-
 ]
 
+
 + k
-+ #lbl(<itm:enum>, [f])
++ #lbl(<itm:test-enum>, [1434])
 + f // qedhere
-@itm:enum

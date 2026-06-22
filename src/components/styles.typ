@@ -86,6 +86,7 @@
       it
     }
   }
+
   show ref: it => {
     let targets = query(selector(it.target))
     if targets.len() == 0 {
@@ -100,6 +101,23 @@
     }
   }
   show: thm-rules.with(qed-symbol: qed-symbol)
+  let enum-numbering = (..it) => {
+    counter("typst-enum").update(it.pos())
+    numbering("1.1.", ..it)
+  }
+
+  // adds referenceable enumerations.
+  // note that the method used to increment enumerations through the numbering will only work with pdfs, htmls don't call the function. Hence they are separately handled.
+  set enum(numbering: enum-numbering, full: true)
+
+  show ref: it => {
+    let el = it.element
+    if el != none and el.func() == text {
+      link(el.location(), context [Part~#numbering("1.1", ..counter("typst-enum").at(el.location()))])
+    } else {
+      it
+    }
+  }
   doc
 }
 
@@ -118,11 +136,6 @@
   ]
 
   show heading: it => [#it#heading-reset-marker(it.level)]
-
-  show: itemize.default-enum-list
-  show: itemize.config.ref.with(supplement: "Part")
-  set enum(numbering: "1")
-
   set figure(numbering: (n, ..) => {
     numbering("1.1", counter(heading).get().first(), n)
   })
@@ -152,13 +165,26 @@
     }
   }
 
+  show enum.where(start: auto): it => context {
+    if target() != "html" { return it }
+
+    counter("typst-enum").update(0)
+
+    let items = it
+      .children
+      .enumerate()
+      .map(((i, item)) => {
+        let n = if item.number == auto { i + 1 } else { item.number }
+        enum.item(item.number, [#counter("typst-enum").update((n,))#item.body])
+      })
+
+    set enum(start: 1)
+    enum(..items)
+  }
   set par(justify: true)
   show heading: it => [#it#heading-reset-marker(it.level)]
   show math.equation.where(block: true): it => html.elem("div", attrs: (class: "display-math"), it)
   show figure.where(kind: "thm-env"): it => it.body
-  show: itemize.default-enum-list
-  show: itemize.config.ref.with(supplement: "Part")
-  set enum(numbering: "1")
 
   doc
 }
