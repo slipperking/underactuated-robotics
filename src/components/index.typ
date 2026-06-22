@@ -2,7 +2,7 @@
 #import "packages.typ" as _packages
 #import "math.typ": *
 #import "graphics.typ": *
-#import "styles.typ": pdf-styles, web-styles, lbl
+#import "styles.typ": pdf-styles, web-styles, explicit-label
 #import "theorems.typ" as _thm
 #import "web.typ" as _web
 
@@ -41,3 +41,5 @@
 #let docs-subsubchapter = _web.docs-subsubchapter
 #let docs-appendix = _web.docs-appendix
 #let docs-backmatter = _web.docs-backmatter
+
+#let lbl = explicit-label

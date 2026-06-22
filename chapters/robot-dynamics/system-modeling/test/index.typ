@@ -28,7 +28,7 @@ where $vb(f_1)(dot) in RR^m$ is a vector with dimensionality matching $vb(q) in 
 
 _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence _control affine_), and the equation above is affine in $vb(u)$ since it is a linear transformation of it.
 
-#lbl(<def:qqq>, definition([Much], restate: true, restate-keys: ("test",))[
+#explicit-label(<def:qqq>, definition([Much], restate: true, restate-keys: ("test",))[
   Ah vous dirai je maman
 ])
 Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:qqq

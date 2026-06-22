@@ -32,11 +32,11 @@ where $vb(f_1)(dot) in RR^m$ is a vector with dimensionality matching $vb(q) in 
 
 _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence _control affine_), and the equation above is affine in $vb(u)$ since it is a linear transformation of it.
 
-#lbl(<eq:euler-energy-mass>, $ E = m c^2 $) // test
+#explicit-label(<eq:euler-energy-mass>, $ E = m c^2 $) // test
 
 @sec:system-modeling and @eq:euler-energy-mass
 
-#lbl(<def:underactuated-and-fully-actuated>, definition(
+#explicit-label(<def:underactuated-and-fully-actuated>, definition(
   [Underactuated and Fully-Actuated],
   restate: true,
   restate-keys: (

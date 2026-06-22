@@ -8,13 +8,12 @@
 #let secondary-label-assignment-counter = state("secondary-label-assignment", 0)
 #let secondary-label-assignment-map = state("secondary-label-assignment-map", (:))
 
-#let lbl(original-label, body) = {
+#let explicit-label(original-label, body) = {
   context {
     let counter = secondary-label-assignment-counter.get()
     let unique-label = label("secondary-label-" + str(counter))
 
     [#body#unique-label]
-
     secondary-label-assignment-map.update(map => {
       let array = map.at(str(original-label), default: ())
       map.insert(str(original-label), array + (unique-label,))
@@ -24,15 +23,25 @@
   secondary-label-assignment-counter.update(c => c + 1)
 }
 
+#let eq-ref-fmt(eq) = {
+  let eq-num = counter(math.equation).at(eq.location()).at(0) + 1
+  link(eq.location(), [(#_scoped-number(eq-num, loc: eq.location()))])
+}
+
 #let shared-styles(doc, mode: "pdf") = {
   show ref: it => {
     if type(it.target) == label {
       context {
-        let label-matches = secondary-label-assignment-map.final().at(str(it.target), default: ())
+        let label-matches = secondary-label-assignment-map
+          .final()
+          .at(str(it.target), default: ())
+          .filter(_label => query(selector(_label)).len() > 0)
 
-        if label-matches.len() != 0 {
-          if mode == "web" {
-            ref(label-matches.last())
+        if label-matches.len() == 0 { return it }
+
+        if mode == "web" {
+          ref(label-matches.last())
+          if label-matches.len() != 0 {
             html.span(
               {
                 for _label in label-matches {
@@ -42,20 +51,27 @@
               class: "typst-multi-label-list",
             )
           } else {
-            ref(label-matches.first())
-            if label-matches.len() > 1 {
-              let html-label = label-matches.last()
-              $#[]^#box(
-                text(fill: black.transparentize(50%), link(html-label, $math.mono("HTML")$), size: 0.5em),
-                outset: 0.5pt,
-                inset: 1.5pt,
-                stroke: 0.5pt + black.transparentize(50%),
-                radius: 2pt,
-              )$
-            }
+            it
           }
         } else {
-          it
+          let first-match
+          if label-matches.len() != 0 {
+            first-match = label-matches.first()
+            ref(first-match)
+          }
+
+          if label-matches.len() > 1 {
+            let html-label = if label-matches.len() > 0 and label-matches.last() != first-match {
+              label-matches.last()
+            }
+            $#[]^#box(
+              text(fill: black.transparentize(50%), link(html-label, $math.mono(dagger.triple)$), size: 0.7em),
+              inset: 1pt,
+              stroke: 0.5pt + black.transparentize(50%),
+              radius: 2pt,
+              baseline: horizon,
+            )$
+          }
         }
       }
     } else {
@@ -78,8 +94,7 @@
 
     let target = targets.last()
     if target.func() == math.equation {
-      let eq-num = counter(math.equation).at(target.location()).at(0) + 1
-      link(target.location(), [(#_scoped-number(eq-num, loc: target.location()))])
+      eq-ref-fmt(target)
     } else {
       it
     }

@@ -1,4 +1,4 @@
-#import "styles.typ": pdf-doc-label, pdf-styles, web-doc-label, web-styles, lbl
+#import "styles.typ": pdf-doc-label, pdf-styles, web-doc-label, web-styles, explicit-label
 #import "theorems.typ": *
 #import "/src/source.typ" as source
 
@@ -214,7 +214,7 @@
   if page.label == none {
     heading(level: page.heading-level, [#page.title])
   } else {
-    lbl(page.label, heading(level: page.heading-level, [#page.title]))
+    explicit-label(page.label, heading(level: page.heading-level, [#page.title]))
   }
 }
 

@@ -28,7 +28,7 @@ where $vb(f_1)(dot) in RR^m$ is a vector with dimensionality matching $vb(q) in 
 
 _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence _control affine_), and the equation above is affine in $vb(u)$ since it is a linear transformation of it.
 
-#lbl(<thm:abc>, theorem[ABC][
+#explicit-label(<thm:abc>, theorem[ABC][
   The equation in $(dagger)$ is said to be _fully actuated_ iff $vb(f)_2$ is of full row rank, or if
   the $rank vb(f) = dim vb(q)$ (since $dim vb(q)$ is the number of rows of $vb(f)_2$). If instead $rank vb(f)_2 < dim vb(q),$ the system is then said to be _underactuated_.
 ])
