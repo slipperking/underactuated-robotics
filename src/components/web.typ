@@ -268,16 +268,16 @@
 #let _heading-toc-entry(h, page) = {
   let number = _heading-number(h)
   if number == none {
-    _plain-text(h.body)
+    h.body
   } else if h.level > 1 {
-    [#sym.section#number #_plain-text(h.body)]
+    [#sym.section#number #h.body]
   } else {
     if page.kind == "chapter" {
-      [Chapter #number: #_plain-text(h.body)]
+      [Chapter #number: #h.body]
     } else if page.kind == "appendix" {
-      [Appendix #number: #_plain-text(h.body)]
+      [Appendix #number: #h.body]
     } else {
-      [#number #_plain-text(h.body)]
+      [#number #h.body]
     }
   }
 }
@@ -293,7 +293,7 @@
       entries.push((level: el.level, kind: "heading", loc: el.location(), body: _heading-toc-entry(el, current)))
     } else {
       let thm = el.value
-      entries.push((level: 3, kind: "theorem", loc: el.location(), body: _plain-text(theorem-toc-entry(thm))))
+      entries.push((level: 3, kind: "theorem", loc: el.location(), body: theorem-toc-entry(thm)))
     }
   }
   entries = entries.sorted(key: e => e.loc.position().page * 100000 + e.loc.position().y / 1pt) // establish hierarchy and sub-hierarchy

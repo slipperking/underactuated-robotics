@@ -204,7 +204,7 @@ a {
 .toc-theorem span {
   position: relative;
   padding-left: calc(1.05rem + var(--toc-depth, 0) * 0.72rem);
-  color: color-mix(in srgb, var(--muted) 75%, var(--accent));
+  color: var(--muted);
   font-size: 0.74rem;
 }
 
@@ -213,7 +213,6 @@ a {
   content: "-";
   position: absolute;
   left: calc(0.48rem + var(--toc-depth, 0) * 0.72rem);
-  top: 0.26rem;
   color: var(--accent);
 }
 
@@ -368,24 +367,6 @@ p {
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-top: 1.15rem;
-}
-
-ul.itemize-ul-list {
-  list-style: none;
-  padding-left: var(--marker-slot, 2.5em);
-}
-
-.data-marker-item {
-  position: relative;
-}
-
-.data-marker-item::before {
-  content: attr(data-marker);
-  position: absolute;
-  left: calc(-1 * var(--marker-slot, 2.5em));
-  top: 0;
-  width: calc(var(--marker-slot, 2.5em) - 8px);
-  text-align: right;
 }
 
 .thm-box {
