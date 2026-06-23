@@ -39,14 +39,12 @@
   if collapsible {
     html.elem("details", attrs: (class: "thm-proof thm-solution"), {
       html.elem("summary", attrs: (class: "proof-head solution-head"), html.elem("em", [#title.]))
-      thm.body
-      html.elem("p", attrs: (class: "qed"), [#qed-symbol])
+      proof-body-fmt(thm.body)
     })
   } else {
     html.elem("div", attrs: (class: "thm-proof"), {
       html.elem("p", attrs: (class: "proof-head"), html.elem("em", [#title.]))
-      thm.body
-      html.elem("p", attrs: (class: "qed"), [#qed-symbol])
+      proof-body-fmt(thm.body)
     })
   }
 }
@@ -89,7 +87,7 @@
       } else {
         pdf-fmt(thm)
       }
-    }
+    },
   )
 }
 
@@ -103,7 +101,7 @@
       } else {
         pdf-fmt(thm)
       }
-    }
+    },
   )
 }
 

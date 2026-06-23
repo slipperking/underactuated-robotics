@@ -158,7 +158,7 @@ a {
 
 .global-nav a {
   display: block;
-  padding: 0.36rem 0.6rem 0.36rem calc(0.6rem + var(--depth, 0) * 0.82rem);
+  padding: 0.2rem 0.6rem 0.2rem calc(0.6rem + var(--depth, 0) * 0.82rem);
   border-left: 2px solid transparent;
   color: var(--muted);
   font-family: var(--sans);
@@ -170,7 +170,7 @@ a {
 .local-toc a,
 .local-toc span {
   display: block;
-  padding: 0.26rem 0.48rem 0.26rem calc(0.48rem + var(--toc-depth, 0) * 0.72rem);
+  padding: 0.1rem 0.48rem 0.1rem calc(0.48rem + var(--toc-depth, 0) * 0.72rem);
   border-left: 2px solid transparent;
   color: var(--muted);
   font-family: var(--sans);
@@ -423,8 +423,14 @@ ul.itemize-ul-list {
   border-left: 2px solid var(--line-strong);
 }
 
-.qed {
+.proof-head {
+  color: var(--accent-ink);
+  margin-bottom: 0;
+}
+
+.qed-symbol {
   text-align: right;
+  float: right;
 }
 
 .theorem-list-entry {

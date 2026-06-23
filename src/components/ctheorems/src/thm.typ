@@ -363,7 +363,7 @@
   return figure(
     number-update
       + thm-update
-      + context{
+      + context {
         let loc = here()
         let number-computed = _computed-number(number, numbering, counter, base)
         let thm = thm + (number: number-computed, loc: loc)
@@ -555,6 +555,7 @@
   /// )
   /// -> content
   qed-symbol: $qed$,
+  mode: "pdf",
   doc,
 ) = {
   show figure.where(kind: "thm-env"): it => {
@@ -568,7 +569,7 @@
     if targets.len() == 0 {
       return it
     }
-    let target = if state("render-mode").get() == "pdf" {
+    let target = if mode == "pdf" {
       targets.first()
     } else {
       targets.last()
@@ -649,7 +650,7 @@
       }
     }
 
-    context if eq.numbering == none and eq.block and state("render-mode").get() == "pdf" {
+    if eq.numbering == none and eq.block and mode == "pdf" {
       layout(size => {
         if (size.width / 1pt).is-infinite() {
           // infinite or unbounded width
@@ -689,7 +690,13 @@
     it
   }
 
-  show metadata.where(value: "thm-qed-symbol"): qed-symbol
+  show metadata.where(value: "thm-qed-symbol"): {
+    if mode == "pdf" {
+      qed-symbol
+    } else {
+      html.elem("span", attrs: (class: "qed-symbol"), qed-symbol)
+    }
+  }
 
   doc
 }

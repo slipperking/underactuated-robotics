@@ -31,4 +31,18 @@ _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence
 #explicit-label(<def:qqq>, definition([Much], restate: true, restate-keys: ("test",))[
   Ah vous dirai je maman
 ])
-Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to // @def:qqq
+
+#proof[
+  #lorem(40)
+  $
+    integral integral integral integral integral integral integral integral integral integral integral integral dx dx dx dx dx dx dx qedhere
+  $
+]
+
+#solution[of a test][
+  #lorem(40)
+  + #lorem(20)
+  + #lorem(20)
+  + #lorem(20) #qedhere
+]
+Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:qqq

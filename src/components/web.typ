@@ -291,8 +291,7 @@
   for el in targets {
     if el.func() == heading {
       entries.push((level: el.level, kind: "heading", loc: el.location(), body: _heading-toc-entry(el, current)))
-    }
-    else {
+    } else {
       let thm = el.value
       entries.push((level: 3, kind: "theorem", loc: el.location(), body: _plain-text(theorem-toc-entry(thm))))
     }
@@ -374,8 +373,8 @@
 #let _pdf-document(path: none) = {
   let body = [
     #[
-      #show: pdf-styles
       #render-mode.update("pdf")
+      #show: pdf-styles
       #include "/chapters/index.typ"
     ] #pdf-doc-label
   ]

@@ -101,7 +101,7 @@
       it
     }
   }
-  show: thm-rules.with(qed-symbol: qed-symbol)
+  show: thm-rules.with(qed-symbol: qed-symbol, mode: mode)
   let enum-numbering = (..it) => {
     counter("typst-enum").update(it.pos())
     numbering("1.1.", ..it)
