@@ -68,7 +68,7 @@
 
   function fillTheoremLeaders() {
     var ruler = document.createElement("span");
-    ruler.style.cssText = "position:absolute;visibility:hidden;font-family:var(--mono);white-space:nowrap;";
+    ruler.style.cssText = "position:absolute;visibility:hidden;font-family:var(--sans);white-space:nowrap;";
     ruler.textContent = "..........";
     document.body.appendChild(ruler);
     var dotWidth = Math.max(1, ruler.getBoundingClientRect().width / 10);

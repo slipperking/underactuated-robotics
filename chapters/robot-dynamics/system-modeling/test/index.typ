@@ -32,3 +32,11 @@ _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence
   Ah vous dirai je maman
 ])
 Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:qqq
+
++ idk
++ #lbl([true], <believe>)
+
+@believe
+#lbl(solution[
+
+], <test-sol>)

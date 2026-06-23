@@ -11,14 +11,9 @@
 @eq:omicron, @eq:euler-energy-mass
 #proof[
   #lorem(40)
-  $ F = m a $ // qedhere
+  #lbl($ F = m a $, <idk>)// qedhere
+  @idk
 ]
 #solution[
   #lorem(40)
-
 ]
-
-
-+ k
-+ #lbl(<itm:test-enum>, [1434])
-+ f // qedhere

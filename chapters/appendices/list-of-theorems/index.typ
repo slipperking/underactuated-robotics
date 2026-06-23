@@ -39,9 +39,8 @@
 
 #let theorem-list() = context {
   if render-mode.get() == "web" {
-    let thms = query(<meta:thm-env-counter>).map(marker => marker.value).filter(theorem-filter)
-    let web-thms = thms.filter(thm => thm.render-mode == "web")
-    let pdf-thms = thms.filter(thm => thm.render-mode == "pdf")
+    let web-thms = query(selector(<meta:thm-env-counter>).within(web-doc-label)).map(marker => marker.value).filter(theorem-filter)
+    let pdf-thms = query(selector(<meta:thm-env-counter>).within(pdf-doc-label)).map(marker => marker.value).filter(theorem-filter)
 
     html.elem("div", attrs: (id: "theorem-list", class: "theorem-list"), {
       for i in range(web-thms.len()) {

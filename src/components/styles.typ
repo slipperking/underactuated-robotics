@@ -8,7 +8,12 @@
 #let secondary-label-assignment-counter = state("secondary-label-assignment", 0)
 #let secondary-label-assignment-map = state("secondary-label-assignment-map", (:))
 
-#let explicit-label(original-label, body) = {
+#let explicit-label(a, b) = {
+  let (body, original-label) = if type(b) == str or type(b) == label {
+    (a, b)
+  } else if type(a) == str or type(a) == label {
+    (b, a)
+  } else { panic("One of the explicit-label parameters must be a string or label.") }
   context {
     let counter = secondary-label-assignment-counter.get()
     let unique-label = label("secondary-label-" + str(counter))
@@ -64,13 +69,7 @@
             let html-label = if label-matches.len() > 0 and label-matches.last() != first-match {
               label-matches.last()
             }
-            $#[]^#box(
-              text(fill: black.transparentize(50%), link(html-label, $math.mono(dagger.triple)$), size: 0.7em),
-              inset: 1pt,
-              stroke: 0.5pt + black.transparentize(50%),
-              radius: 2pt,
-              baseline: horizon,
-            )$
+            $#[]^#text(link(html-label, $dagger.triple$ * 3), size: 0.8em)$
           }
         }
       }
@@ -88,12 +87,15 @@
   }
 
   show ref: it => {
-    let targets = query(selector(it.target))
-    if targets.len() == 0 {
-      return it
+    let target = if it.element == none {
+      let targets = query(selector(it.target))
+      if targets.len() == 0 {
+        return it
+      }
+      if _is-web-render() { targets.last() } else { targets.first() }
+    } else {
+      it.element
     }
-
-    let target = targets.last()
     if target.func() == math.equation {
       eq-ref-fmt(target)
     } else {
@@ -113,7 +115,7 @@
   show ref: it => {
     let el = it.element
     if el != none and el.func() == text {
-      link(el.location(), context [Part~#numbering("1.1", ..counter("typst-enum").at(el.location()))])
+      link(el.location(), [Part~#numbering("1.1", ..counter("typst-enum").at(el.location()))])
     } else {
       it
     }

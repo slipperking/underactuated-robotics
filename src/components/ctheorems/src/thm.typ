@@ -345,10 +345,9 @@
 
   let thm-update = context {
     let loc = here()
-    let mode = state("render-mode").get()
     let number-computed = _computed-number(number, numbering, counter, base)
     thm-stored.update(thms => {
-      let thm = thm + (number: number-computed, loc: loc, render-mode: mode)
+      let thm = thm + (number: number-computed, loc: loc)
       if thms == none {
         return (thm,)
       } else {
@@ -364,11 +363,10 @@
   return figure(
     number-update
       + thm-update
-      + context {
+      + context{
         let loc = here()
-        let mode = state("render-mode").get()
         let number-computed = _computed-number(number, numbering, counter, base)
-        let thm = thm + (number: number-computed, loc: loc, render-mode: mode)
+        let thm = thm + (number: number-computed, loc: loc)
         [
           #metadata(thm) <meta:thm-env-counter>
           #fmt(thm)

@@ -456,7 +456,7 @@ ul.itemize-ul-list {
   display: inline;
   overflow: hidden;
   color: var(--muted);
-  font-family: var(--mono);
+  font-family: var(--sans);
   white-space: nowrap;
 }
 
