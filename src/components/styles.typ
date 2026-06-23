@@ -134,10 +134,6 @@
 
 #let pdf-styles(doc) = {
   show: shared-styles.with(mode: "pdf")
-  set document(
-    title: "Notes on Underactuated Robotics",
-    author: "Slipper King and Saint Even",
-  )
   set par(justify: true)
   set page(numbering: "1", margin: 1.75in)
 

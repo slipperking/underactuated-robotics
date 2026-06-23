@@ -1,4 +1,4 @@
-#import "styles.typ": pdf-doc-label, pdf-styles, web-doc-label, web-styles, explicit-label
+#import "styles.typ": explicit-label, pdf-doc-label, pdf-styles, web-doc-label, web-styles
 #import "theorems.typ": *
 #import "/src/source.typ" as source
 
@@ -246,6 +246,14 @@
   })
 }
 
+#let theorem-heading(thm) = {
+  let head = [*#thm.supplement~#thm.number*]
+  if thm.name != none {
+    head += [~(#thm.name)]
+  }
+  head
+}
+
 #let _toc-entry(class, location, body, depth: 0) = html.elem(
   "li",
   attrs: (
@@ -257,34 +265,44 @@
   },
 )
 
-#let _heading-toc-entry(h) = {
+#let _heading-toc-entry(h, page) = {
   let number = _heading-number(h)
   if number == none {
     _plain-text(h.body)
   } else if h.level > 1 {
     [#sym.section#number #_plain-text(h.body)]
   } else {
-    [#number #_plain-text(h.body)]
+    if page.kind == "chapter" {
+      [Chapter #number: #_plain-text(h.body)]
+    } else if page.kind == "appendix" {
+      [Appendix #number: #_plain-text(h.body)]
+    } else {
+      [#number #_plain-text(h.body)]
+    }
   }
 }
 
 #let _local-toc(current) = context {
   let doc-label = label("doc-" + current.id)
   let first-heading = _first-page-heading(current)
-  let headings = query(selector(heading).within(doc-label)).filter(h => (
-    h.level > 1 and (first-heading == none or h.location() != first-heading.location())
-  ))
+  let targets = query(selector(heading).within(doc-label).or(selector(<meta:thm-env-counter>)).within(doc-label))
 
   let entries = ()
-  for h in headings {
-    entries.push((level: h.level, kind: "heading", loc: h.location(), body: _heading-toc-entry(h)))
+  for el in targets {
+    if el.func() == heading {
+      entries.push((level: el.level, kind: "heading", loc: el.location(), body: _heading-toc-entry(el, current)))
+    }
+    else {
+      let thm = el.value
+      entries.push((level: 3, kind: "theorem", loc: el.location(), body: _plain-text(theorem-toc-entry(thm))))
+    }
   }
-  entries = entries.sorted(key: e => e.loc.position().page * 100000 + e.loc.position().y / 1pt)
+  entries = entries.sorted(key: e => e.loc.position().page * 100000 + e.loc.position().y / 1pt) // establish hierarchy and sub-hierarchy
 
   html.elem("nav", attrs: (class: "local-toc", "aria-label": "On this page"), {
     html.elem("h2", [On This Page])
     if entries.len() == 0 {
-      html.elem("p", attrs: (class: "muted"), [No subsections yet.])
+      html.elem("p", attrs: (class: "muted"), [No entries yet.])
     } else {
       html.elem("ul", {
         for entry in entries {

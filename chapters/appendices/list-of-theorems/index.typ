@@ -1,19 +1,11 @@
-#import "/src/components/index.typ": docs-appendix, render-mode, thm-state
 #import "/lib.typ": *
+#import "/src/components/web.typ": theorem-heading
 
 #show: docs-appendix.with(
   title: "List of Theorems",
   route: "list-of-theorems",
   description: "Collected theorem-like statements from the notes.",
 )
-
-#let theorem-heading(thm) = {
-  let head = [*#thm.supplement~#thm.number*]
-  if thm.name != none {
-    head += [~(#thm.name)]
-  }
-  head
-}
 
 #let theorem-entry(thm) = [
   #link(thm.loc, [#theorem-heading(thm)~#box(width: 1fr, repeat[.])~#thm.loc.page()])\
@@ -39,8 +31,12 @@
 
 #let theorem-list() = context {
   if render-mode.get() == "web" {
-    let web-thms = query(selector(<meta:thm-env-counter>).within(web-doc-label)).map(marker => marker.value).filter(theorem-filter)
-    let pdf-thms = query(selector(<meta:thm-env-counter>).within(pdf-doc-label)).map(marker => marker.value).filter(theorem-filter)
+    let web-thms = query(selector(<meta:thm-env-counter>).within(web-doc-label))
+      .map(marker => marker.value)
+      .filter(theorem-filter)
+    let pdf-thms = query(selector(<meta:thm-env-counter>).within(pdf-doc-label))
+      .map(marker => marker.value)
+      .filter(theorem-filter)
 
     html.elem("div", attrs: (id: "theorem-list", class: "theorem-list"), {
       for i in range(web-thms.len()) {

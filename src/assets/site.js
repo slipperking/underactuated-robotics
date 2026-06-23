@@ -128,47 +128,6 @@
     return depth;
   }
 
-  function buildLocalToc() {
-    var nav = document.querySelector(".local-toc");
-    var main = document.querySelector("main.content");
-    if (!nav || !main) return;
-
-    var ul = nav.querySelector("ul");
-    var muted = nav.querySelector(".muted");
-    if (!ul) {
-      ul = document.createElement("ul");
-      nav.appendChild(ul);
-    }
-
-    ul.textContent = "";
-    main.querySelectorAll("h2[id],h3[id],h4[id],h5[id],h6[id],.thm-box[id]").forEach(function (node) {
-      if (node.closest(".page-source-heading")) return;
-
-      var link = document.createElement("a");
-      link.href = "#" + node.id;
-
-      var li = document.createElement("li");
-      if (node.classList.contains("thm-box")) {
-        var head = node.querySelector(".thm-head");
-        if (!head) return;
-        li.className = "toc-theorem";
-        li.style.setProperty("--toc-depth", nearestHeadingDepth(node));
-        link.textContent = head.textContent.trim().replace(/\.$/, "");
-      } else {
-        li.className = "toc-heading";
-        li.style.setProperty("--toc-depth", tocDepthForHeading(node));
-        link.innerHTML = "§" + node.innerHTML;
-      }
-
-      li.appendChild(link);
-      ul.appendChild(li);
-    });
-
-    if (muted) {
-      muted.hidden = ul.children.length > 0;
-    }
-  }
-
   function setupReferenceTooltips() {
     var tooltip = document.createElement("div");
     tooltip.className = "ref-tooltip";
@@ -269,7 +228,6 @@
   }
 
   normalizeDisplayMath();
-  buildLocalToc();
   setupReferenceTooltips();
   fillTheoremLeaders();
   addEventListener("resize", function () {

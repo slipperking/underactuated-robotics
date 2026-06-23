@@ -42,7 +42,6 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--topbar-height) + 1rem);
-  text-align: justify;
 }
 
 body {
@@ -51,6 +50,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font: 16px/1.68 var(--sans);
+  text-align: justify;
 }
 
 a {
@@ -150,6 +150,7 @@ a {
 
 .global-nav ul,
 .local-toc ul {
+  text-align: left;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -325,6 +326,14 @@ p {
   margin-top: 2rem;
   margin-bottom: 1rem;
   color: var(--muted);
+}
+
+.cover .recommendation {
+  font-size: 0.85rem;
+  max-width: 42rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--gold);
 }
 
 .button {
