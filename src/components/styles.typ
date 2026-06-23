@@ -8,16 +8,16 @@
 #let secondary-label-assignment-counter = state("secondary-label-assignment", 0)
 #let secondary-label-assignment-map = state("secondary-label-assignment-map", (:))
 
-#let explicit-label(a, b) = {
+#let explicit-label(a, b, prefix: "") = {
   let (body, original-label) = if type(b) == str or type(b) == label {
     (a, b)
   } else if type(a) == str or type(a) == label {
     (b, a)
   } else { panic("One of the explicit-label parameters must be a string or label.") }
+  secondary-label-assignment-counter.update(c => c + 1)
   context {
     let counter = secondary-label-assignment-counter.get()
-    let unique-label = label("secondary-label-" + str(counter))
-
+    let unique-label = label(prefix + "secondary-label-" + str(counter))
     [#body#unique-label]
     secondary-label-assignment-map.update(map => {
       let array = map.at(str(original-label), default: ())
@@ -25,7 +25,6 @@
       map
     })
   }
-  secondary-label-assignment-counter.update(c => c + 1)
 }
 
 #let eq-ref-fmt(eq) = {
@@ -34,6 +33,7 @@
 }
 
 #let shared-styles(doc, mode: "pdf") = {
+  show: layout-limiter.with(max-iterations: 5)
   show ref: it => {
     if type(it.target) == label {
       context {
@@ -41,7 +41,6 @@
           .final()
           .at(str(it.target), default: ())
           .filter(_label => query(selector(_label)).len() > 0)
-
         if label-matches.len() == 0 { return it }
 
         if mode == "web" {
@@ -113,8 +112,18 @@
   set enum(numbering: enum-numbering, full: true)
 
   show ref: it => {
-    let el = it.element
-    if el != none and el.func() == text {
+    let el = if it.element == none {
+      let locations = query(selector(it.target)).last(default: none)
+    } else { it.element }
+    if (
+      el != none
+        and (
+          el.func() == metadata
+            and type(el.value) == dictionary
+            and el.value.keys().contains("type")
+            and el.value.type == "typst-enum-item-label"
+        )
+    ) {
       link(el.location(), [Part~#numbering("1.1", ..counter("typst-enum").at(el.location()))])
     } else {
       it

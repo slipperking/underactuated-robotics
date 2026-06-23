@@ -20,25 +20,15 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Typst
-        uses: typst-community/setup-typst@v4
-        with:
-          typst-version: "0.15.0"
-
-      - name: Build PDF
+      - name: Build Document
         run: |
-          mkdir -p build
-          typst compile --package-path packages main.typ build/notes.pdf
-
-      - name: Build site bundle
-        run: |
-          rm -rf web/dist
-          typst compile --features html,bundle --format bundle --package-path packages main.typ web/dist
+          Remove-Item -Recurse -Force web/dist -ErrorAction SilentlyContinue
+          .\typst.exe compile --features bundle,html --format bundle --package-path packages main.typ web/dist
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
