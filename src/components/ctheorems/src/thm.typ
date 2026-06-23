@@ -496,7 +496,9 @@
   body
   context {
     if thm-qed-done.get().last() == false {
-      h(1fr)
+      if state("render-mode").get() != "web" {
+        h(1fr)
+      }
       thm-qed-show
     }
   }
@@ -676,7 +678,9 @@
 
   show enum.item: it => {
     show metadata.where(value: "thm-qedhere"): {
-      h(1fr)
+      if mode != "web" {
+        h(1fr)
+      }
       thm-qed-show
     }
     it
@@ -684,7 +688,9 @@
 
   show list.item: it => {
     show metadata.where(value: "thm-qedhere"): {
-      h(1fr)
+      if mode != "web" {
+        h(1fr)
+      }
       thm-qed-show
     }
     it

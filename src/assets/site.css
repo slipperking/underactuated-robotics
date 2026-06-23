@@ -728,6 +728,18 @@ pre {
   }
 }
 
+figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+[data-theme="dark"] figure svg {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 @media print {
 
   .topbar,

@@ -1,5 +1,18 @@
 #import "packages.typ": *
-
+#let canvas(..args) = context {
+  if state("render-mode").get() == "web" {
+    html.frame(cetz.canvas(..args))
+  } else {
+    cetz.canvas(..args)
+  }
+}
+#let cplot(..args) = context {
+  if state("render-mode").get() == "web" {
+    html.frame(cetz-plot.plot.plot(..args))
+  } else {
+    cetz-plot.plot.plot(..args)
+  }
+}
 #let ray(body, dy: 0em, tag: none) = {
   let body = pad(top: 0em, $#body$)
 
@@ -59,8 +72,7 @@
   let y-range = y-max - y-min
   let size = (x-range * scale, y-range * scale)
   let plot = {
-    import cetz.draw: *
-    cetz-plot.plot.plot(
+    cplot(
       size: size,
       axis-style: "school-book",
       x-min: x-min,
@@ -81,7 +93,7 @@
   }
 
   if wrap {
-    return cetz.canvas(..canvas-args, plot)
+    return canvas(..canvas-args, plot)
   } else {
     return plot
   }
@@ -90,22 +102,12 @@
 #let figure-wrapper(..items, columns: auto) = context {
   let figures = items.pos()
   let column-count = if columns == auto { figures.len() } else { columns }
-  let body = grid(
+  grid(
     columns: column-count, gutter: 1fr,
     inset: 1em,
-    align: alignment.center,
+    align: center,
     ..figures.map(item => grid.cell([#item])),
   )
-
-  if target() == "html" or target() == "bundle" {
-    body
-  } else {
-    place(
-      alignment.top + alignment.center,
-      float: true,
-      body,
-    )
-  }
 }
 
 #let dot-tiling(pattern_dist: 2pt, radius: 0.4pt) = tiling(

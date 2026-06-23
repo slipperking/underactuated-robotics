@@ -54,3 +54,129 @@ _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence
   + #lorem(20) #qedhere
 ]
 Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), then the rank of $vb(f)_2$ is at most $n$, whereas the dimensionality of $vb(q)$, or $m$, is greater than $n$. Thus, in this case the system will always be underactuated. We provide a heuristic or intuitive explanation; since there are less control inputs than the positions we wish to control, we do not _have full control_ of the system. Refer to @def:qqq
+
+#lbl(
+  figure(
+    canvas({
+      import cetz.draw: *
+      import cetz.decorations: brace
+
+      catmull(
+        (-3.3, -0.8),
+        (-0.5, -2.5),
+        (1.5, -1.6),
+        (3.5, 0.2),
+        (2.0, 4.2),
+        (-1.5, 4.0),
+        (-2.3, 2.4),
+        (-3.2, 0.2),
+        close: true,
+        tension: 0.5,
+        stroke: (thickness: 0.35pt),
+        name: "vn+1",
+      )
+
+      catmull(
+        (-3.0, -0.8),
+        (-0.5, -2.1),
+        (1.5, -1.2),
+        (2.8, 0.5),
+        (1.8, 3.5),
+        (-0.8, 3.7),
+        (-1.9, 2.4),
+        (-2.8, 0.2),
+        close: true,
+        tension: 0.5,
+        stroke: (thickness: 0.5pt),
+        name: "vn",
+      )
+
+      catmull(
+        (-2.5, -0.8),
+        (-0.5, -1.8),
+        (1.5, -0.8),
+        (2.5, 1.3),
+        (1.5, 2.9),
+        (-0.5, 3.2),
+        (-1.5, 2.2),
+        (-2.5, 0.2),
+        close: true,
+        tension: 0.5,
+        stroke: (thickness: 0.65pt),
+        name: "vn-1",
+      )
+
+      catmull(
+        (-2.3, -0.3),
+        (-0.5, -1.3),
+        (1.0, -0.4),
+        (1.7, 0.9),
+        (1.9, 2.2),
+        (-0.5, 2.7),
+        (-1.0, 2.2),
+        (-1.5, 1.2),
+        close: true,
+        tension: 0.5,
+        stroke: (thickness: 1pt),
+        name: "kn-2",
+      )
+
+      // dotted subcovers remain the same
+      let subcover_arrays = (
+        ((1.9, 2.5), (2.0, 3.6), (0.2, 3.9), (0.0, 2.8), (1.0, 2.9)),
+        ((-1.3, 2.2), (-1.8, 2.7), (-1.3, 3.6), (-0.9, 3.9), (0.2, 3.8), (-0.1, 3.0), (-1.0, 2.6)),
+        ((-1.3, 2.2), (-1.8, 2.7), (-1.3, 3.6), (-0.9, 3.9), (0.2, 3.8), (-0.1, 3.0), (-1.0, 2.6)),
+        ((-3.0, 0.2), (-2.7, 1.2), (-1.9, 2.8), (-1.0, 2.5), (-1.8, 1.2), (-2.3, 0.2), (-2.5, -0.6)),
+        ((-2.5, -1.3), (-0.3, -2.4), (-0.5, -1.7), (-1.5, -1.3), (-2.5, -0.5), (-2.8, 0.2), (-3.0, 0.2), (-3.2, -0.6)),
+        ((-0.5, -1.6), (1.0, -1.0), (1.5, -0.1), (2.7, -0.1), (1.0, -1.7), (-0.7, -2.2)),
+        ((1.5, -0.6), (1.8, 0.4), (3.0, 1.2), (3.1, 0.2)),
+        ((3.0, 0.6), (2.3, 0.7), (2.1, 2.0), (1.7, 2.6), (1.9, 3.0), (2.4, 3.1)),
+      )
+      for points in subcover_arrays {
+        catmull(..points, close: true, tension: 0.5, stroke: 0.5pt, fill: dot-tiling())
+      }
+
+      hide({
+        line((0, 0), (2, 10), name: "brace_test_line")
+        line((0, 0), (.5, 10), name: "label_test_line")
+      })
+
+      intersections("label_sect_kn-2", "kn-2", "label_test_line")
+      intersections("label_sect_vn-1", "vn-1", "label_test_line")
+      intersections("label_sect_vn", "vn", "label_test_line")
+      intersections("label_sect_vn+1", "vn+1", "label_test_line")
+
+      intersections("brace_sects", "kn-2", "vn+1", "brace_test_line")
+
+      content(
+        ("label_sect_kn-2.0", 50%, "label_sect_vn-1.0"),
+        math-rect($V_(n-1)$),
+        anchor: "center",
+      )
+      content(
+        ("label_sect_vn-1.0", 50%, "label_sect_vn.0"),
+        math-rect($V_n$),
+        anchor: "center",
+      )
+      content(
+        ("label_sect_vn.0", 50%, "label_sect_vn+1.0"),
+        math-rect($V_(n+1)$),
+        anchor: "center",
+      )
+
+      content((0.0, 1.0), $K_(n-2)$, anchor: "north")
+      brace(
+        ("brace_sects.0", 2%, "brace_sects.1"),
+        ("brace_sects.0", 98%, "brace_sects.1"),
+        name: "wn-brace",
+        amplitude: 7pt,
+        stroke: (thickness: 1pt),
+        flip: true,
+      )
+      content("wn-brace.content", math-rect($W_n$))
+    }),
+    caption: [Geometry of the finite subcover of $V_n subset W_n$ for some $n in NN$.],
+  ),
+  <fig:locally-finite-open-cover-existence>,
+)
+@fig:locally-finite-open-cover-existence

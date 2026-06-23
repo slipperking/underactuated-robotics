@@ -190,9 +190,10 @@
   }
   set par(justify: true)
   show heading: it => [#it#heading-reset-marker(it.level)]
-  show math.equation.where(block: true): it => {
+  show math.equation.where(block: true): it => context {
     // prevent double wrapping with previous numbering show rule.
-    if it.numbering == none {
+    // also, in figures, html will be paged, so no div.
+    if it.numbering == none and target() != "paged" {
       html.elem("div", attrs: (class: "display-math"), it)
     } else { it }
   }

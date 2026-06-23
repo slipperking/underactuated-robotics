@@ -84,6 +84,7 @@
     math.equation(numbering: none, block: true, $ inline(#snippet) $),
     fill: luma(100%, 80%),
     outset: 1pt,
+    radius: 2pt,
     ..args,
   )
 }
