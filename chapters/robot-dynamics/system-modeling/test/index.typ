@@ -37,6 +37,14 @@ _Affinity_ is perceived with respect to the control input $vb(u) in RR^n$ (hence
   $
     integral integral integral integral integral integral integral integral integral integral integral integral dx dx dx dx dx dx dx qedhere
   $
+  #lorem(2)
+  $ F = m a $
+  #lorem(2)
+  #explicit-label($ F = m a $, <eq:test-alignment>)
+  #lorem(2)
+  $ F = m a $
+  #lorem(2)
+  #explicit-label($ F = m a $, <eq:test-alignment>)
 ]
 
 #solution[of a test][

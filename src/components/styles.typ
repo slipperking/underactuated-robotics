@@ -190,7 +190,12 @@
   }
   set par(justify: true)
   show heading: it => [#it#heading-reset-marker(it.level)]
-  show math.equation.where(block: true): it => html.elem("div", attrs: (class: "display-math"), it)
+  show math.equation.where(block: true): it => {
+    // prevent double wrapping with previous numbering show rule.
+    if it.numbering == none {
+      html.elem("div", attrs: (class: "display-math"), it)
+    } else { it }
+  }
   show figure.where(kind: "thm-env"): it => it.body
 
   doc
