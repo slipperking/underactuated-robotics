@@ -7,7 +7,6 @@
   description: "Introductory material for robot dynamics and control.",
   children: [
     #include "system-modeling/index.typ"
-    #include "test/index.typ"
   ],
 )
 
