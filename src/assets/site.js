@@ -170,36 +170,49 @@
       tooltip.style.top = Math.min(rect.bottom + gap, window.innerHeight - tipRect.height - 8) + "px";
     }
 
-    function showTooltip(trigger, source) {
+    function showTooltip(trigger, linksData) {
       clearHideTimer();
       activeTrigger = trigger;
       tooltip.textContent = "";
 
-      var links = Array.from(source.querySelectorAll("a[href]"));
-      links.forEach(function (link, index) {
+      linksData.forEach(function (data) {
         var item = document.createElement("a");
-        item.href = link.getAttribute("href");
-        item.textContent = linkLabel(link, index, links);
+        item.href = data.href;
+        item.textContent = data.label;
         tooltip.appendChild(item);
       });
 
-      tooltip.hidden = links.length === 0;
+      tooltip.hidden = linksData.length === 0;
       if (!tooltip.hidden) {
         placeTooltip(trigger);
       }
     }
 
     document.querySelectorAll(".typst-multi-label-list").forEach(function (source) {
-      var trigger = source.previousElementSibling;
-      if (!trigger || !trigger.matches("a[href]")) return;
+      let trigger = source.previousElementSibling;
+      while (trigger && !(trigger.matches("a[href]"))) {
+        trigger = trigger.previousElementSibling;
+      }
+      if (!trigger) return;
+
+      var links = Array.from(source.querySelectorAll("a[href]"));
+      var linksData = links.map(function (link, index) {
+        return {
+          href: link.getAttribute("href"),
+          label: linkLabel(link, index, links)
+        };
+      });
+
+      source.remove();
 
       trigger.classList.add("ref-with-tooltip");
+
       trigger.addEventListener("mouseenter", function () {
-        showTooltip(trigger, source);
+        showTooltip(trigger, linksData);
       });
       trigger.addEventListener("mouseleave", scheduleHide);
       trigger.addEventListener("focus", function () {
-        showTooltip(trigger, source);
+        showTooltip(trigger, linksData);
       });
       trigger.addEventListener("blur", scheduleHide);
     });

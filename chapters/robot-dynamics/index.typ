@@ -20,7 +20,7 @@ In the field of controlling and training of autonomous stuff, there are three po
 #lbl(<def:enums>, definition[
   #lorem(60)
 
-  #lbl($ H i $, <eq:hi>)
+  #lbl($ H i #[@itm:testenum fails] $, <eq:hi>)
 
   1. 2
   + #enum-lbl(<itm:testenum>) what

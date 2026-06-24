@@ -46,13 +46,15 @@
         if mode == "web" {
           ref(label-matches.last())
           if label-matches.len() != 0 {
-            html.span(
+            html.elem(
+              // we need the markers to not mess up links in math although they are already precarious
+              "math",
               {
                 for _label in label-matches {
-                  html.span(ref(_label), class: "typst-multi-label")
+                  html.elem("mtext", ref(_label), attrs: (class: "typst-multi-label"))
                 }
               },
-              class: "typst-multi-label-list",
+              attrs: (class: "typst-multi-label-list"),
             )
           } else {
             it
