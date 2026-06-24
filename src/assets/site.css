@@ -63,6 +63,18 @@ a {
   color: var(--accent);
 }
 
+math .math-link {
+  color: var(--accent-ink);
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.055em;
+  text-underline-offset: 0.16em;
+  cursor: pointer;
+}
+
+[data-theme="dark"] math .math-link {
+  color: var(--accent);
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -627,6 +639,33 @@ pre {
 
 .page-nav-spacer {
   min-height: 4.6rem;
+}
+
+section[role="doc-endnotes"] {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+section[role="doc-endnotes"] ol {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+section[role="doc-endnotes"] li {
+  margin: 0.35rem 0;
+  padding-left: 0;
+}
+
+section[role="doc-endnotes"] sup[role="doc-backlink"] {
+  margin-right: 0.35rem;
+  color: var(--accent-ink);
+  font-size: 0.78em;
 }
 
 .sidebar-backdrop {

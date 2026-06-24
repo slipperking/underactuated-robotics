@@ -110,6 +110,49 @@
     });
   }
 
+  function upgradeMathLinks() {
+    var mathmlNs = "http://www.w3.org/1998/Math/MathML";
+
+    document.querySelectorAll("math a[href]").forEach(function (anchor) {
+      var mtext = document.createElementNS(mathmlNs, "mtext");
+      mtext.setAttribute("class", "math-link");
+      mtext.setAttribute("role", "link");
+      mtext.setAttribute("tabindex", "0");
+      mtext.setAttribute("data-href", anchor.getAttribute("href") || "");
+      if (anchor.hasAttribute("title")) {
+        mtext.setAttribute("title", anchor.getAttribute("title"));
+      }
+      if (anchor.hasAttribute("aria-label")) {
+        mtext.setAttribute("aria-label", anchor.getAttribute("aria-label"));
+      }
+      mtext.textContent = anchor.textContent;
+      anchor.replaceWith(mtext);
+    });
+  }
+
+  function moveFootnotesAbovePageNav() {
+    var endnotes = document.querySelector('section[role="doc-endnotes"]');
+    var main = document.querySelector(".content");
+    if (!endnotes || !main) return;
+
+    var pageNav = main.querySelector(".page-nav");
+    // typst appends endnotes after the main content
+    // move them so they render before the previous/next cards.
+    if (pageNav) {
+      main.insertBefore(endnotes, pageNav);
+    } else {
+      main.appendChild(endnotes);
+    }
+  }
+
+  function whenDomReady(callback) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else {
+      callback();
+    }
+  }
+
   function tocDepthForHeading(heading) {
     var level = Number(heading.tagName.slice(1));
     return Math.max(0, level - 2);
@@ -153,7 +196,7 @@
     }
 
     function linkLabel(link, index, links) {
-      var href = link.getAttribute("href") || "";
+      var href = link.getAttribute("href") || link.getAttribute("data-href") || "";
       if (links.length === 1) return "Open";
       if (index === 0 || /\.pdf(?:#|$)/i.test(href)) return "PDF";
       if (index === links.length - 1) return "HTML";
@@ -190,15 +233,15 @@
 
     document.querySelectorAll(".typst-multi-label-list").forEach(function (source) {
       let trigger = source.previousElementSibling;
-      while (trigger && !(trigger.matches("a[href]"))) {
+      while (trigger && !(trigger.matches("a[href]") || trigger.matches(".math-link"))) {
         trigger = trigger.previousElementSibling;
       }
       if (!trigger) return;
 
-      var links = Array.from(source.querySelectorAll("a[href]"));
+      var links = Array.from(source.querySelectorAll("a[href], .math-link"));
       var linksData = links.map(function (link, index) {
         return {
-          href: link.getAttribute("href"),
+          href: link.getAttribute("href") || link.getAttribute("data-href"),
           label: linkLabel(link, index, links)
         };
       });
@@ -239,8 +282,40 @@
     });
   }
 
+  function setupMathLinkNavigation() {
+    function openMathLink(link, event) {
+      var href = link.getAttribute("data-href");
+      if (!href) return;
+      if (event.type === "click") {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        window.location.href = href;
+      } else if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        window.location.href = href;
+      }
+    }
+
+    document.addEventListener("click", function (event) {
+      var link = event.target.closest && event.target.closest(".math-link");
+      if (link) {
+        openMathLink(link, event);
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      var link = event.target.closest && event.target.closest(".math-link");
+      if (link) {
+        openMathLink(link, event);
+      }
+    });
+  }
+
+  upgradeMathLinks();
   normalizeDisplayMath();
+  whenDomReady(moveFootnotesAbovePageNav);
   setupReferenceTooltips();
+  setupMathLinkNavigation();
   fillTheoremLeaders();
   addEventListener("resize", function () {
     fillTheoremLeaders();

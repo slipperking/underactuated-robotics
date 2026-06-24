@@ -180,3 +180,6 @@ Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), th
   <fig:locally-finite-open-cover-existence>,
 )
 @fig:locally-finite-open-cover-existence
+
+Really#footnote[Im done], I'm done with #lorem(40) and know that $ #[know that @fig:locally-finite-open-cover-existence is true] $
+#footnote[Im done $2 uppi$]
