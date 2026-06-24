@@ -6,13 +6,6 @@
     cetz.canvas(..args)
   }
 }
-#let cplot(..args) = context {
-  if state("render-mode").get() == "web" {
-    html.frame(cetz-plot.plot.plot(..args))
-  } else {
-    cetz-plot.plot.plot(..args)
-  }
-}
 #let ray(body, dy: 0em, tag: none) = context {
   if target() != "paged" {
     return math.arrow(body)
@@ -68,14 +61,13 @@
   x-max: 6,
   y-min: -1,
   y-max: 6,
-  wrap: true,
   ..args,
 ) = {
   let x-range = x-max - x-min
   let y-range = y-max - y-min
   let size = (x-range * scale, y-range * scale)
   let plot = {
-    cplot(
+    cetz-plot.plot.plot(
       size: size,
       axis-style: "school-book",
       x-min: x-min,
@@ -88,18 +80,11 @@
       {
         cetz-plot.plot.add(x => 0, domain: (0, 0))
         extra-plot
-        cetz-plot.plot.annotate({
-          _canvas
-        })
+        cetz-plot.plot.annotate(_canvas)
       },
     )
   }
-
-  if wrap {
-    return canvas(..canvas-args, plot)
-  } else {
-    return plot
-  }
+  canvas(..canvas-args, plot)
 }
 
 #let figure-wrapper(..items, columns: auto) = context {
