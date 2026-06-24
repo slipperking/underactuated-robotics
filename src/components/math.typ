@@ -30,7 +30,13 @@
 #let vb(x) = Vb(math.upright(x))
 #let vu(x) = Vu(vb(x))
 #let va(x) = Va(vb(x))
-
+#let overline(..args) = context {
+  if target() == "paged" {
+    std.overline(..args)
+  } else {
+    math.dash(..args)
+  }
+}
 #let dx = $dd(x)$
 #let dy = $dd(y)$
 #let dz = $dd(z)$
@@ -52,8 +58,9 @@
 #let Re = math.op($frak(Re)$)
 #let Im = math.op($frak(Im)$)
 #let Ind = math.op("Ind")
-#let wp = math.op($\u{2118}$)
+#let wp = $pee$
 
+#let extcomplex = $hat(CC)$
 #let length = $op("length")$
 #let jinterior = $op("int")$
 #let jexterior = $op("ext")$
@@ -71,9 +78,6 @@
 
 #let nothing = sym.diameter
 #let emptyset = sym.diameter
-#let abs(x) = $lr(| #x |)$
-#let ceil(x) = $lr(ceil.l #x ceil.r)$
-#let floor(x) = $lr(floor.l #x floor.r)$
 #let interior(x) = $attach(limits(#x), t: circle.small)$
 
 #let doubletilde(x) = $tilde(tilde(#x))$

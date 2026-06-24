@@ -155,7 +155,7 @@
   if h == none { 0 } else { calc.max(0, h.level - 1) }
 }
 
-#let _page-label(page) = context {
+#let _page-label(page) = {
   let h = _first-page-heading(page)
   let number = _heading-number(h)
   let title = if h != none { h.body } else { page.title }
@@ -370,7 +370,7 @@
 
 #let _pdf-cover() = source.pdf-cover(outline-target: selector(heading).within(pdf-doc-label))
 
-#let _pdf-document(path: none) = {
+#let _pdf-document(path: none) = context {
   let body = [
     #[
       #render-mode.update("pdf")
@@ -530,7 +530,7 @@
     _pdf-document(path: "pdf/notes.pdf")
 
     render-mode.update("web")
-    [
+    context [
       #{
         include "/chapters/index.typ"
         _not-found-page()

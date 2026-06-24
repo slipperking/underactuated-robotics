@@ -159,8 +159,8 @@
 #let web-styles(doc) = {
   show: shared-styles.with(mode: "web")
   set document(
-    title: "Notes on Underactuated Robotics",
-    author: "Slipper King and Saint Even",
+    title: "Notes on Complex Analysis",
+    author: "Slipper King",
   )
 
   show math.equation: it => {

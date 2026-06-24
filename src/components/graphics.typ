@@ -13,7 +13,10 @@
     cetz-plot.plot.plot(..args)
   }
 }
-#let ray(body, dy: 0em, tag: none) = {
+#let ray(body, dy: 0em, tag: none) = context {
+  if target() != "paged" {
+    return math.arrow(body)
+  }
   let body = pad(top: 0em, $#body$)
 
   mannot.core-mark(body, tag: tag, color: none, outset: (top: 0em), overlay: (width, height, color) => {
@@ -21,8 +24,8 @@
   })
 }
 
-#let sray(body, tag: none) = {
-  return ray($script(body)$, dy: 0.3em, tag: tag)
+#let sray(body, tag: none) = context {
+  return if target() == "paged" { ray($script(body)$, dy: 0.3em, tag: tag) } else { math.arrow(body) }
 }
 
 #let halflength-arrow(start, end, scalar: 0, mark: (end: ">>", fill: black), ..args) = {
@@ -67,7 +70,7 @@
   y-max: 6,
   wrap: true,
   ..args,
-) = context {
+) = {
   let x-range = x-max - x-min
   let y-range = y-max - y-min
   let size = (x-range * scale, y-range * scale)
@@ -102,12 +105,18 @@
 #let figure-wrapper(..items, columns: auto) = context {
   let figures = items.pos()
   let column-count = if columns == auto { figures.len() } else { columns }
-  grid(
-    columns: column-count, gutter: 1fr,
-    inset: 1em,
-    align: center,
-    ..figures.map(item => grid.cell([#item])),
-  )
+  if target() == "paged" {
+    grid(
+      columns: column-count, gutter: 1fr,
+      inset: 1em,
+      align: center,
+      ..figures.map(item => grid.cell([#item])),
+    )
+  } else {
+    for fig in figures {
+      fig
+    }
+  }
 }
 
 #let dot-tiling(pattern_dist: 2pt, radius: 0.4pt) = tiling(
