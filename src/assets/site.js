@@ -78,14 +78,13 @@
       var dots = entry.querySelector(".theorem-list-dots");
       var marker = entry.querySelector(".theorem-list-end");
       var page = entry.querySelector(".theorem-list-page");
-      var pageLink = page && page.closest("a");
-      if (!dots || !marker || !pageLink) return;
+      if (!dots || !marker || !page) return;
 
       dots.textContent = "";
       var entryRect = entry.getBoundingClientRect();
       var markerRect = marker.getBoundingClientRect();
-      var pageWidth = pageLink.getBoundingClientRect().width;
-      var remaining = entryRect.right - markerRect.right - pageWidth - 10;
+      var pageWidth = page.getBoundingClientRect().width;
+      var remaining = entryRect.right - markerRect.right - pageWidth;
       var count = Math.floor(Math.max(0, remaining) / dotWidth);
       dots.textContent = count >= 2 ? ".".repeat(count) : "";
     });
