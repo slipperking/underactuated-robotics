@@ -615,7 +615,7 @@
           ).first()
           let pos-numbering = equation-numbering-metadata.location().position()
           let pre-extra-diff = data.value.pre-extra-diff.final() // hacky but we reuse data from previous passes
-          let dy = 0em //-0.0875em
+          let dy = 0em
           if pre-extra-diff == none {
             pre-extra-diff = 0pt
           }
@@ -636,6 +636,7 @@
               // if the marker/position metadata of numbering, minus width (so tag start) is before equation end (here), we add spaces after to add effective spaces
               // otherwise do nothing
               let extra-diff = calc.max(0pt, raw-overlap) // amount of space to add
+              extra-diff = calc.round(extra-diff * 10000 / 1pt) * 1pt / 10000 // help out convergence a bit
               place(horizon, dx: diff + extra-diff, dy: dy, data.value.eq-tag)
               // place(horizon, dx: diff + extra-diff + 2em, repr(extra-diff))
               // place(horizon, dx: diff + extra-diff + 6em, repr(pre-extra-diff))

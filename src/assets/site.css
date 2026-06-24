@@ -470,14 +470,6 @@ p {
   text-decoration: none;
 }
 
-.equation-tag,
-.eq-tag {
-  color: var(--ink);
-  float: right;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .typst-multi-label-list {
   display: none
 }
@@ -523,30 +515,25 @@ p {
 
 .display-math {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 0;
   align-items: center;
-  column-gap: 0;
   width: 100%;
   margin: 0.72rem auto 0.95rem;
 }
 
 .display-math>math[display="block"] {
   grid-column: 1;
-  width: 100%;
   min-width: 0;
-  max-width: 100%;
-  margin: 0;
+  width: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0;
   text-align: center;
 }
 
 .display-math>.equation-tag,
-.display-math>.tag {
+.display-math>.eq-tag {
   grid-column: 2;
   justify-self: end;
-  align-self: center;
+  white-space: nowrap;
 }
 
 math[display="block"] {

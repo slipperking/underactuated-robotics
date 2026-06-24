@@ -1,10 +1,14 @@
 #import "packages.typ": *
-#let canvas(..args) = context {
-  if state("render-mode").get() == "web" {
-    html.frame(cetz.canvas(..args))
+
+#let potential-frame(arg) = context {
+  if target() != "paged" {
+    html.frame(arg)
   } else {
-    cetz.canvas(..args)
+    arg
   }
+}
+#let canvas(..args) = {
+  potential-frame(cetz.canvas(..args))
 }
 #let ray(body, dy: 0em, tag: none) = context {
   if target() != "paged" {

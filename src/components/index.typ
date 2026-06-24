@@ -1,10 +1,10 @@
 #import "packages.typ": *
 #import "packages.typ" as _packages
-#import "math.typ": *
 #import "graphics.typ": *
-#import "styles.typ": pdf-styles, web-styles, explicit-label
+#import "styles.typ": explicit-label, pdf-styles, web-styles
 #import "theorems.typ" as _thm
 #import "web.typ" as _web
+#import "math.typ": *
 
 #let theorem = _thm.theorem
 #let lemma = _thm.lemma
@@ -36,8 +36,8 @@
 #let abstract = _web.abstract
 #let docs-cover = _web.docs-cover
 #let docs-frontmatter = _web.docs-frontmatter
-#let docs-chapter = _web.docs-chapter
 #let docs-section = _web.docs-section
+#let docs-chapter = _web.docs-chapter
 #let docs-subchapter = _web.docs-subchapter
 #let docs-subsubchapter = _web.docs-subsubchapter
 #let docs-appendix = _web.docs-appendix

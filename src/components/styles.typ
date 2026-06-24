@@ -1,6 +1,7 @@
 #import "packages.typ": *
 #import "math.typ": *
 #import "theorems.typ": *
+#import "../source.typ" : *
 
 #let pdf-doc-label = <pdf-notes>
 #let web-doc-label = <web-notes>
@@ -63,14 +64,15 @@
           let first-match
           if label-matches.len() != 0 {
             first-match = label-matches.first()
-            ref(first-match)
           }
 
           if label-matches.len() > 1 {
             let html-label = if label-matches.len() > 0 and label-matches.last() != first-match {
               label-matches.last()
             }
-            $#[]^#text(link(html-label, $dagger.triple$ * 3), size: 0.8em)$
+            $#ref(first-match)^#text(link(html-label, $dagger.triple$ * 3), size: 0.8em)$
+          } else {
+            ref(first-match)
           }
         }
       }
@@ -161,8 +163,8 @@
 #let web-styles(doc) = {
   show: shared-styles.with(mode: "web")
   set document(
-    title: "Notes on Complex Analysis",
-    author: "Slipper King",
+    title: title,
+    author: authors,
   )
 
   show math.equation: it => {

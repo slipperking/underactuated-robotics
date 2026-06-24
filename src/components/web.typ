@@ -517,8 +517,8 @@
 
 #let docs-cover(..args) = _docs-page(kind: "cover", cover: true, ..args)
 #let docs-frontmatter(..args) = _docs-page(kind: "frontmatter", ..args)
-#let docs-chapter(..args) = _docs-page(kind: "chapter", ..args)
 #let docs-section(..args) = _docs-page(kind: "section", ..args)
+#let docs-chapter(..args) = _docs-page(kind: "chapter", ..args)
 #let docs-subchapter(..args) = _docs-page(kind: "subchapter", ..args)
 #let docs-subsubchapter(..args) = _docs-page(kind: "subsubchapter", ..args)
 #let docs-appendix(..args) = _docs-page(kind: "appendix", ..args)
