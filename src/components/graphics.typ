@@ -57,7 +57,7 @@
 }
 
 #let quick-plot(
-  canvas: none,
+  _canvas: none,
   extra-plot: none,
   canvas-args: none,
   scale: 1.4,
@@ -86,7 +86,7 @@
         cetz-plot.plot.add(x => 0, domain: (0, 0))
         extra-plot
         cetz-plot.plot.annotate({
-          canvas
+          _canvas
         })
       },
     )
