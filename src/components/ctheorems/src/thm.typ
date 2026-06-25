@@ -391,6 +391,13 @@
   })
 }
 
+#let thm-qed-show-float = {
+  metadata("thm-qed-symbol-float")
+  thm-qed-done.update(stack => {
+    stack.slice(0, -1) + (true,)
+  })
+}
+
 /// If placed in a block equation/enum/list within a proof, place a qed symbol
 /// to its right.
 ///
@@ -499,7 +506,7 @@
       if state("render-mode").get() != "web" {
         h(1fr)
       }
-      thm-qed-show
+      thm-qed-show-float
     }
   }
   thm-qed-done.update(stack => {
@@ -682,7 +689,7 @@
       if mode != "web" {
         h(1fr)
       }
-      thm-qed-show
+      thm-qed-show-float
     }
     it
   }
@@ -692,7 +699,7 @@
       if mode != "web" {
         h(1fr)
       }
-      thm-qed-show
+      thm-qed-show-float
     }
     it
   }
@@ -700,6 +707,12 @@
   show metadata.where(value: "thm-qed-symbol"): {
     qed-symbol
   }
-
+  show metadata.where(value: "thm-qed-symbol-float"): {
+    if mode != "web" {
+      qed-symbol
+    } else {
+      html.span(qed-symbol, class: "qed-symbol")
+    }
+  }
   doc
 }

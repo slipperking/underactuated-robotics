@@ -653,6 +653,10 @@ p {
   display: inline-block;
 }
 
+.qed-symbol {
+  float: right;
+}
+
 math[display="block"] {
   width: 100%;
   min-width: 0;
