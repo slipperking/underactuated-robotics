@@ -18,7 +18,7 @@
   secondary-label-assignment-counter.update(c => c + 1)
   context {
     let counter = secondary-label-assignment-counter.get()
-    let unique-label = label(prefix + "secondary-label-" + str(counter))
+    let unique-label = label(prefix + str(original-label) + str(counter))
     [#body#unique-label]
     secondary-label-assignment-map.update(map => {
       let array = map.at(str(original-label), default: ())
