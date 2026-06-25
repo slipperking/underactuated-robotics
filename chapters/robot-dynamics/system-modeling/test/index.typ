@@ -183,3 +183,22 @@ Obviously, in the case that $vb(f)_2$ has more rows ($m$) than columns ($n$), th
 
 Really#footnote[Im done], I'm done with #lorem(40) and know that $ #[know that @fig:locally-finite-open-cover-existence is true] $
 #footnote[Im done $2 uppi$]
+
+$
+  & norm(bold(sigma)(w_1) - bold(sigma)(w_2)) \
+  & wide""= sqrt(
+    & ((2 Re w_1)/(abs(w_1)^2+1) - (2 Re w_2)/(abs(w_2)^2+1))^2
+      + ((2 Im w_1)/(abs(w_1)^2+1) - (2 Im w_2)/(abs(w_2)^2+1))^2 \
+    & ""+ ((abs(w_1)^2-1)/(abs(w_1)^2+1) - (abs(w_2)^2-1)/(abs(w_2)^2+1))^2
+  ) \
+  & wide""= 1/((abs(w_1)^2+1)(abs(w_2)^2+1)) \
+  & wide quad ""times sqrt(
+    & 4 Re[w_1(abs(w_2)^2+1) - w_2(abs(w_1)^2+1)]^2 \
+    & ""+ 4 Im[w_1(abs(w_2)^2+1) - w_2(abs(w_1)^2+1)]^2 \
+    & ""+[(abs(w_1)^2-1)(abs(w_2)^2+1) - (abs(w_2)^2-1)(abs(w_1)^2+1)]^2
+  ) \
+  & wide""= 2/(rho_1 rho_2) sqrt(abs(w_1 rho_2 - w_2 rho_1)^2 + (rho_1 - rho_2)^2) #tag[(where $rho_i = abs(w_i)^2 + 1$)] \
+  & wide""= 2 / (rho_1 rho_2) sqrt(rho_2^2 (rho_1 - 1) + rho_1^2 (rho_2 - 1) - 2 rho_2 rho_1 Re[w_1 overline(w_2)] + (rho_1 - rho_2)^2) \
+  & wide""= 2 / (rho_1 rho_2) sqrt(rho_2^2 rho_1 + rho_1^2 rho_2 - 2 rho_2 rho_1 Re[w_1 overline(w_2)] - 2 rho_1 rho_2) #tag[(nah)] \
+  & wide""= 2 / sqrt(rho_1 rho_2) sqrt(rho_2 + rho_1 - 2 Re[w_1 overline(w_2)] - 2) = (2 abs(w_1 - w_2)) / sqrt(rho_1 rho_2) = k(w_1, w_2) #tag[(hello!)] \
+$

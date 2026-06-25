@@ -102,12 +102,228 @@
 
       if (!wrapper) return;
 
-      var tag = math.querySelector(".eq-tag, .equation-tag");
-      if (tag) {
-        tag.classList.add("equation-tag");
-        wrapper.appendChild(tag);
+      var scroll = math.closest(".equation-scroll");
+      if (!scroll || !wrapper.contains(scroll)) {
+        scroll = document.createElement("div");
+        scroll.className = "equation-scroll";
+        math.parentNode.insertBefore(scroll, math);
+        scroll.appendChild(math);
+      }
+
+      setupDisplayMathTags(wrapper, math);
+    });
+  }
+
+  function tagGroupTop(items) {
+    return items.reduce(function (sum, item) {
+      return sum + item.top;
+    }, 0) / items.length;
+  }
+
+  function setMathSpaceWidth(space, width) {
+    var value = Math.max(0, Math.ceil(width + 8)) + "px";
+    space.setAttribute("width", value);
+    space.style.width = value;
+  }
+
+  function placeEquationTagGroups(wrapper) {
+    var layer = wrapper.querySelector(":scope > .equation-tag-layer");
+    if (!layer) return;
+
+    var wrapperRect = wrapper.getBoundingClientRect();
+    layer.querySelectorAll(".equation-tag-group").forEach(function (group) {
+      var anchors = Array.from(group.querySelectorAll(".equation-tag")).map(function (tag) {
+        return tag._equationTagAnchor;
+      }).filter(Boolean);
+      if (anchors.length === 0) return;
+
+      var top = anchors.reduce(function (sum, anchor) {
+        var rect = anchor.getBoundingClientRect();
+        return sum + rect.top - wrapperRect.top + wrapper.scrollTop;
+      }, 0) / anchors.length;
+
+      group.style.top = top + "px";
+      var width = group.getBoundingClientRect().width;
+      anchors.forEach(function (anchor) {
+        if (anchor.tagName && anchor.tagName.toLowerCase() === "mspace") {
+          setMathSpaceWidth(anchor, width);
+        }
+      });
+    });
+  }
+
+  function setupDisplayMathTags(wrapper, math) {
+    if (wrapper.dataset.equationTagsReady === "true") {
+      placeEquationTagGroups(wrapper);
+      return;
+    }
+
+    var tags = Array.from(wrapper.querySelectorAll(".eq-tag, .equation-tag")).filter(function (tag) {
+      return !tag.closest(".equation-tag-layer");
+    });
+    if (tags.length === 0) return;
+
+    var mathmlNs = "http://www.w3.org/1998/Math/MathML";
+    var wrapperRect = wrapper.getBoundingClientRect();
+    var items = tags.map(function (tag) {
+      var tagRect = tag.getBoundingClientRect();
+      var isInsideMath = math.contains(tag);
+      var anchor = tag;
+
+      tag.classList.add("equation-tag");
+
+      if (isInsideMath) {
+        anchor = document.createElementNS(mathmlNs, "mspace");
+        anchor.setAttribute("class", "equation-tag-space");
+        anchor.setAttribute("width", "0px");
+        tag.parentNode.insertBefore(anchor, tag);
+      } else {
+        anchor = document.createElement("span");
+        anchor.className = "equation-tag-anchor";
+        var parent = tag.parentNode;
+        var holder = parent && parent !== wrapper && parent.children.length === 1 ? parent : tag;
+        holder.parentNode.insertBefore(anchor, holder);
+        if (holder !== tag) {
+          holder.classList.add("equation-tag-holder");
+        }
+      }
+
+      tag._equationTagAnchor = anchor;
+      return {
+        tag: tag,
+        anchor: anchor,
+        top: tagRect.top - wrapperRect.top + wrapper.scrollTop
+      };
+    }).sort(function (a, b) {
+      return a.top - b.top;
+    });
+
+    var groups = [];
+    var lineThreshold = 12;
+    items.forEach(function (item) {
+      var last = groups[groups.length - 1];
+      if (last && Math.abs(item.top - tagGroupTop(last)) <= lineThreshold) {
+        last.push(item);
+      } else {
+        groups.push([item]);
       }
     });
+
+    var layer = document.createElement("div");
+    layer.className = "equation-tag-layer";
+    wrapper.appendChild(layer);
+
+    groups.forEach(function (groupItems) {
+      var group = document.createElement("div");
+      group.className = "equation-tag-group";
+      groupItems.forEach(function (item) {
+        group.appendChild(item.tag);
+      });
+      layer.appendChild(group);
+    });
+
+    wrapper.dataset.equationTagsReady = "true";
+    placeEquationTagGroups(wrapper);
+  }
+
+  function safeReadJson(key, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || "null") || fallback;
+    } catch (_error) {
+      return fallback;
+    }
+  }
+
+  function safeWriteJson(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (_error) {
+      // Keep navigation usable even when storage is unavailable.
+    }
+  }
+
+  function navItemDepth(item) {
+    var value = item.style.getPropertyValue("--depth") || "0";
+    var depth = Number(value.trim());
+    return Number.isFinite(depth) ? depth : 0;
+  }
+
+  function navStorageKeyForLink(link) {
+    var href = link.getAttribute("href") || "";
+    try {
+      var url = new URL(href, window.location.href);
+      return url.pathname.replace(/\/index\.html$/, "/");
+    } catch (_error) {
+      return href || link.textContent.trim();
+    }
+  }
+
+  function setupGlobalNavCollapse() {
+    var nav = document.querySelector(".global-nav");
+    if (!nav) return;
+
+    var items = Array.from(nav.querySelectorAll(".nav-item"));
+    if (items.length === 0) return;
+
+    var storageKey = "globalNavCollapsed";
+    var collapsed = new Set(safeReadJson(storageKey, []));
+    var parentItems = [];
+
+    items.forEach(function (item, index) {
+      var next = items[index + 1];
+      var depth = navItemDepth(item);
+      if (!next || navItemDepth(next) <= depth) return;
+
+      var link = item.querySelector("a[href]");
+      if (!link) return;
+
+      var key = navStorageKeyForLink(link);
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "nav-collapse-toggle";
+      button.setAttribute("aria-label", "Toggle " + link.textContent.trim());
+      button.dataset.navKey = key;
+      item.classList.add("has-children");
+      item.appendChild(button);
+      parentItems.push(item);
+
+      button.addEventListener("click", function () {
+        if (collapsed.has(key)) {
+          collapsed.delete(key);
+        } else {
+          collapsed.add(key);
+        }
+        safeWriteJson(storageKey, Array.from(collapsed));
+        applyGlobalNavCollapse();
+      });
+    });
+
+    function applyGlobalNavCollapse() {
+      var collapsedDepths = [];
+      items.forEach(function (item) {
+        var depth = navItemDepth(item);
+        collapsedDepths = collapsedDepths.filter(function (parentDepth) {
+          return parentDepth < depth;
+        });
+
+        item.hidden = collapsedDepths.length > 0;
+
+        var button = item.querySelector(":scope > .nav-collapse-toggle");
+        if (button) {
+          var key = button.dataset.navKey;
+          var isCollapsed = collapsed.has(key);
+          item.classList.toggle("is-collapsed", isCollapsed);
+          button.setAttribute("aria-expanded", String(!isCollapsed));
+          if (isCollapsed) {
+            collapsedDepths.push(depth);
+          }
+        }
+      });
+    }
+
+    if (parentItems.length > 0) {
+      applyGlobalNavCollapse();
+    }
   }
 
   function upgradeMathLinks() {
@@ -313,14 +529,17 @@
 
   upgradeMathLinks();
   normalizeDisplayMath();
+  setupGlobalNavCollapse();
   whenDomReady(moveFootnotesAbovePageNav);
   setupReferenceTooltips();
   setupMathLinkNavigation();
   fillTheoremLeaders();
   addEventListener("resize", function () {
     fillTheoremLeaders();
+    document.querySelectorAll(".display-math").forEach(placeEquationTagGroups);
   });
   addEventListener("load", function () {
     fillTheoremLeaders();
+    document.querySelectorAll(".display-math").forEach(placeEquationTagGroups);
   });
 })();

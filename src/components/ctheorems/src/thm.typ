@@ -454,7 +454,7 @@
   tag-metadata-counter.step()
   context {
     if state("render-mode").get() == "web" {
-      html.div(t, class: "eq-tag")
+      html.elem("a", attrs: (class: "eq-tag"), t)
     } else {
       let key = "pre-extra-diff-" + str(tag-metadata-counter.get().first())
       metadata((
