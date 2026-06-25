@@ -18,8 +18,6 @@
 #let claim = _thm.claim
 #let proof = _thm.proof
 #let solution = _thm.solution
-#let qed-symbol = _thm.qed-symbol
-#let qedhere = h(1fr) + _thm.qed-symbol
 #let theorem-toc-entry = _thm.theorem-toc-entry
 
 #let thm-counter = _thm.thm-counter

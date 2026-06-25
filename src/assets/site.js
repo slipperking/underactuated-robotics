@@ -139,7 +139,7 @@
 
       var top = anchors.reduce(function (sum, anchor) {
         var rect = anchor.getBoundingClientRect();
-        return sum + rect.top - wrapperRect.top + wrapper.scrollTop;
+        return sum + rect.top + rect.height / 2 - wrapperRect.top;
       }, 0) / anchors.length;
 
       group.style.top = top + "px";
@@ -217,13 +217,32 @@
       var group = document.createElement("div");
       group.className = "equation-tag-group";
       groupItems.forEach(function (item) {
-        group.appendChild(item.tag);
+        group.appendChild(externalEquationTag(item.tag, item.anchor));
       });
       layer.appendChild(group);
     });
 
     wrapper.dataset.equationTagsReady = "true";
     placeEquationTagGroups(wrapper);
+  }
+
+  function externalEquationTag(tag, anchor) {
+    if (tag.tagName && tag.tagName.toLowerCase() !== "a") {
+      tag._equationTagAnchor = anchor;
+      return tag;
+    }
+
+    var replacement = document.createElement("div");
+    Array.from(tag.attributes).forEach(function (attr) {
+      if (attr.name !== "href") {
+        replacement.setAttribute(attr.name, attr.value);
+      }
+    });
+    replacement.classList.add("equation-tag");
+    replacement.innerHTML = tag.innerHTML;
+    replacement._equationTagAnchor = anchor;
+    tag.remove();
+    return replacement;
   }
 
   function safeReadJson(key, fallback) {

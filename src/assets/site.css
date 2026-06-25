@@ -466,11 +466,6 @@ p {
   margin-bottom: 0;
 }
 
-.qed-symbol {
-  text-align: right;
-  float: right;
-}
-
 .theorem-list-entry {
   display: block;
   position: relative;
@@ -590,7 +585,6 @@ p {
 }
 
 .equation-scroll>math[display="block"] {
-  display: inline-block;
   min-width: 100%;
   width: max-content;
   max-width: none;
@@ -625,8 +619,9 @@ p {
   position: absolute;
   right: 0;
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.45rem;
+  line-height: 1;
   transform: translateY(-50%);
 }
 

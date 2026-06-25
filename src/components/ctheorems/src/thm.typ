@@ -698,11 +698,7 @@
   }
 
   show metadata.where(value: "thm-qed-symbol"): {
-    if mode == "pdf" {
-      qed-symbol
-    } else {
-      html.elem("span", attrs: (class: "qed-symbol"), qed-symbol)
-    }
+    qed-symbol
   }
 
   doc
