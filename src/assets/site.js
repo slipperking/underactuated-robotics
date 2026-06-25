@@ -576,10 +576,10 @@
   setupGlobalNavCollapse();
   setupLocalTocRowNavigation();
   whenDomReady(moveFootnotesAbovePageNav);
+  upgradeMathLinks();
   setupReferenceTooltips();
   setupMathLinkNavigation();
   fillTheoremLeaders();
-  upgradeMathLinks();
   addEventListener("resize", function () {
     fillTheoremLeaders();
     document.querySelectorAll(".display-math").forEach(placeEquationTagGroups);
