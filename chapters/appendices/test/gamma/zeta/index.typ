@@ -6,3 +6,5 @@
   route: "zeta",
   description: "State-space modeling and control-affine dynamics.",
 )
+
+$ F = m a #tag[(by @eq:euler-energy-mass)] $

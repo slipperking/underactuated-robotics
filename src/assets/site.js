@@ -558,13 +558,13 @@
     });
   }
 
-  upgradeMathLinks();
   normalizeDisplayMath();
   setupGlobalNavCollapse();
   whenDomReady(moveFootnotesAbovePageNav);
   setupReferenceTooltips();
   setupMathLinkNavigation();
   fillTheoremLeaders();
+  upgradeMathLinks();
   addEventListener("resize", function () {
     fillTheoremLeaders();
     document.querySelectorAll(".display-math").forEach(placeEquationTagGroups);
