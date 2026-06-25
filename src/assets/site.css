@@ -858,6 +858,11 @@ figure {
   text-align: center;
 }
 
+figure svg {
+  max-width: 100%;
+  height: auto !important;
+}
+
 [data-theme="dark"] figure svg {
   filter: invert(1) hue-rotate(180deg);
 }
