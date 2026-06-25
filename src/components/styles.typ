@@ -1,7 +1,7 @@
 #import "packages.typ": *
 #import "math.typ": *
 #import "theorems.typ": *
-#import "../source.typ" : *
+#import "../source.typ": *
 
 #let pdf-doc-label = <pdf-notes>
 #let web-doc-label = <web-notes>
@@ -170,7 +170,7 @@
   show math.equation: it => {
     if it.block and it.numbering != none {
       let number = counter(math.equation).display(it.numbering)
-      it.body + tag(number)
+      $ it.body tag(number) $
     } else {
       it
     }

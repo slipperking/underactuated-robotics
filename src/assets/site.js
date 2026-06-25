@@ -90,7 +90,19 @@
     });
   }
 
+  function flattenDisplayMathWrappers() {
+    document.querySelectorAll(".display-math > .display-math").forEach(function (inner) {
+      var outer = inner.parentNode;
+      if (!outer || !outer.classList.contains("display-math")) return;
+      while (inner.firstChild) {
+        outer.insertBefore(inner.firstChild, inner);
+      }
+      inner.remove();
+    });
+  }
+
   function normalizeDisplayMath() {
+    flattenDisplayMathWrappers();
     document.querySelectorAll('math[display="block"]').forEach(function (math) {
       var wrapper = math.closest(".display-math");
       if (!wrapper && math.parentNode) {
