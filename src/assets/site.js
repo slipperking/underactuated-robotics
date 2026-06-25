@@ -392,6 +392,20 @@
     }
   }
 
+  function setupLocalTocRowNavigation() {
+    document.querySelectorAll(".local-toc li").forEach(function (item) {
+      var primary = item.querySelector("a[href]");
+      if (!primary) return;
+
+      item.addEventListener("click", function (event) {
+        if (event.defaultPrevented || event.target.closest("a[href]")) return;
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+        window.location.href = primary.href;
+      });
+    });
+  }
+
   function whenDomReady(callback) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", callback, { once: true });
@@ -560,6 +574,7 @@
 
   normalizeDisplayMath();
   setupGlobalNavCollapse();
+  setupLocalTocRowNavigation();
   whenDomReady(moveFootnotesAbovePageNav);
   setupReferenceTooltips();
   setupMathLinkNavigation();

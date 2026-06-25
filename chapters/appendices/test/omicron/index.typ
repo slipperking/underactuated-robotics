@@ -14,6 +14,6 @@
   #lbl($ F = m a $, <idk>)// qedhere
   @idk
 ]
-#solution[
+#solution[to @eq:euler-energy-mass][
   #lorem(40)
 ]
