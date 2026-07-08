@@ -30,13 +30,7 @@
 #let vb(x) = Vb(math.upright(x))
 #let vu(x) = Vu(vb(x))
 #let va(x) = Va(vb(x))
-#let overline(..args) = context {
-  if target() == "paged" {
-    std.overline(..args)
-  } else {
-    math.dash(..args)
-  }
-}
+
 #let dx = $dd(x)$
 #let dy = $dd(y)$
 #let dz = $dd(z)$

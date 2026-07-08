@@ -50,7 +50,7 @@
 }
 
 #let thm-fmt = thm-fmt-block.with(
-  name-fmt: x => [(#x)],
+  name-fmt: x => smallcaps[(#x)],
   title-fmt: strong,
   body-fmt: emph,
   separator: [*.* ],

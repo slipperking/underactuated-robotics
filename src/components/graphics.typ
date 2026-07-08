@@ -25,7 +25,7 @@
   return if target() == "paged" { ray($script(body)$, dy: 0.3em, tag: tag) } else { math.arrow(body) }
 }
 
-#let halflength-arrow(start, end, scalar: 0, mark: (end: ">>", fill: black), ..args) = {
+#let half-length-arrow(start, end, scalar: 0, mark: (end: ">>", fill: black), ..args) = {
   let pstart = (start, scalar, 90deg, end)
   let pend = (end, scalar, -90deg, start)
   cetz.draw.line(
@@ -46,7 +46,7 @@
   ((0, 0), scale * 100%, vector)
 }
 
-#let directional_points(offset: (0, 0), angle: 0, length: 1e-6, n: 10) = {
+#let directional-points(offset: (0, 0), angle: 0, length: 1e-6, n: 10) = {
   let vec = ((0, 0), 100%, angle, (length, 0))
   let out = ()
 
@@ -95,15 +95,25 @@
   let figures = items.pos()
   let column-count = if columns == auto { figures.len() } else { columns }
   if target() == "paged" {
-    grid(
-      columns: column-count, gutter: 1fr,
-      inset: 1em,
-      align: center,
-      ..figures.map(item => grid.cell([#item])),
+    place(
+      top + center,
+      float: true,
+      grid(
+        columns: column-count, gutter: 1fr,
+        inset: 1em,
+        align: center,
+        ..figures.map(item => grid.cell([#item])),
+      ),
     )
   } else {
-    for fig in figures {
+    // todo: make this a grid too, but if the viewport is small, stack instead
+    let body = for fig in figures {
       fig
+    }
+    if target() == "html" or state("render-mode").get() == "web" {
+      html.elem("div", attrs: (class: "figure-wrapper"), body)
+    } else {
+      body
     }
   }
 }

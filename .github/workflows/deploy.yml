@@ -3,7 +3,6 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -25,20 +24,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Build Document
         run: |
           Remove-Item -Recurse -Force web/dist -ErrorAction SilentlyContinue
-          .\typst.exe compile --features bundle,html --format bundle --package-path packages main.typ web/dist
+          Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+          .\typst.exe compile --features bundle,html --format bundle --package-path packages main.typ dist
+
+      - name: Build Search Index
+        run: python build-search-index.py
 
       - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: web/dist
+          path: dist
 
   deploy:
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     environment:

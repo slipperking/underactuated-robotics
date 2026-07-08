@@ -3,7 +3,14 @@
 
   var THEMES = ["light", "dark", "auto"];
   var themeButton = document.querySelector(".theme-toggle");
+  var themeButtonIcon = themeButton ? themeButton.querySelector(".icon") : null;
+  var assetIcon = document.querySelector(".icon");
   var storedTheme = localStorage.getItem("theme") || "auto";
+  var THEME_ICON_FILES = {
+    light: "sun.svg",
+    dark: "moon.svg",
+    auto: "theme.svg"
+  };
 
   function resolvedTheme(mode) {
     if (mode === "auto") {
@@ -19,6 +26,12 @@
     if (themeButton) {
       themeButton.title = "Theme: " + mode.charAt(0).toUpperCase() + mode.slice(1);
       themeButton.setAttribute("aria-label", themeButton.title);
+    }
+    if (themeButtonIcon) {
+      var currentSrc = themeButtonIcon.getAttribute("src") || "";
+      var iconPath = currentSrc.replace(/[^/]+$/, THEME_ICON_FILES[mode] || THEME_ICON_FILES.auto);
+      themeButtonIcon.setAttribute("src", iconPath);
+      themeButtonIcon.setAttribute("alt", mode.charAt(0).toUpperCase() + mode.slice(1) + " theme");
     }
   }
 
@@ -66,6 +79,31 @@
     if (event.key === "Escape") closeSidebars();
   });
 
+  function isEditableTarget(target) {
+    if (!target) return false;
+    if (target.isContentEditable) return true;
+    var tagName = target.tagName;
+    return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
+  }
+
+  function focusSearchInput() {
+    var input = document.querySelector('form[data-search-form="true"] .search-input');
+    if (!input) return false;
+    input.focus();
+    if (typeof input.select === "function") {
+      input.select();
+    }
+    return true;
+  }
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey) || event.altKey) return;
+    if (isEditableTarget(event.target)) return;
+    if (focusSearchInput()) {
+      event.preventDefault();
+    }
+  });
+
   function fillTheoremLeaders() {
     var ruler = document.createElement("span");
     ruler.style.cssText = "position:absolute;visibility:hidden;font-family:var(--sans);white-space:nowrap;";
@@ -101,9 +139,47 @@
     });
   }
 
+  function flattenDisplayMathWrappersIn(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll(".display-math > .display-math").forEach(function (inner) {
+      var outer = inner.parentNode;
+      if (!outer || !outer.classList.contains("display-math")) return;
+      while (inner.firstChild) {
+        outer.insertBefore(inner.firstChild, inner);
+      }
+      inner.remove();
+    });
+  }
+
   function normalizeDisplayMath() {
     flattenDisplayMathWrappers();
     document.querySelectorAll('math[display="block"]').forEach(function (math) {
+      var wrapper = math.closest(".display-math");
+      if (!wrapper && math.parentNode) {
+        wrapper = document.createElement("div");
+        wrapper.className = "display-math";
+        math.parentNode.insertBefore(wrapper, math);
+        wrapper.appendChild(math);
+      }
+
+      if (!wrapper) return;
+
+      var scroll = math.closest(".equation-scroll");
+      if (!scroll || !wrapper.contains(scroll)) {
+        scroll = document.createElement("div");
+        scroll.className = "equation-scroll";
+        math.parentNode.insertBefore(scroll, math);
+        scroll.appendChild(math);
+      }
+
+      setupDisplayMathTags(wrapper, math);
+    });
+  }
+
+  function normalizeDisplayMathIn(root) {
+    if (!root || !root.querySelectorAll) return;
+    flattenDisplayMathWrappersIn(root);
+    root.querySelectorAll('math[display="block"]').forEach(function (math) {
       var wrapper = math.closest(".display-math");
       if (!wrapper && math.parentNode) {
         wrapper = document.createElement("div");
@@ -151,8 +227,8 @@
 
       var top = anchors.reduce(function (sum, anchor) {
         var rect = anchor.getBoundingClientRect();
-        return sum + rect.top + rect.height / 2 - wrapperRect.top;
-      }, 0) / anchors.length;
+        return sum + rect.top - wrapperRect.top - (parseFloat(getComputedStyle(group).fontSize) || 0) / 2;
+}, 0) / anchors.length;
 
       group.style.top = top + "px";
       var width = group.getBoundingClientRect().width;
@@ -169,21 +245,21 @@
       placeEquationTagGroups(wrapper);
       return;
     }
-
-    var tags = Array.from(wrapper.querySelectorAll(".eq-tag, .equation-tag")).filter(function (tag) {
-      return !tag.closest(".equation-tag-layer");
+  
+    var tags = Array.from(wrapper.querySelectorAll(".eq-tag,.equation-tag")).filter(function (tag) {
+      return!tag.closest(".equation-tag-layer");
     });
     if (tags.length === 0) return;
-
+  
     var mathmlNs = "http://www.w3.org/1998/Math/MathML";
     var wrapperRect = wrapper.getBoundingClientRect();
     var items = tags.map(function (tag) {
       var tagRect = tag.getBoundingClientRect();
       var isInsideMath = math.contains(tag);
       var anchor = tag;
-
+  
       tag.classList.add("equation-tag");
-
+  
       if (isInsideMath) {
         anchor = document.createElementNS(mathmlNs, "mspace");
         anchor.setAttribute("class", "equation-tag-space");
@@ -193,25 +269,25 @@
         anchor = document.createElement("span");
         anchor.className = "equation-tag-anchor";
         var parent = tag.parentNode;
-        var holder = parent && parent !== wrapper && parent.children.length === 1 ? parent : tag;
+        var holder = parent && parent!== wrapper && parent.children.length === 1? parent : tag;
         holder.parentNode.insertBefore(anchor, holder);
-        if (holder !== tag) {
+        if (holder!== tag) {
           holder.classList.add("equation-tag-holder");
         }
       }
-
+  
       tag._equationTagAnchor = anchor;
       return {
         tag: tag,
         anchor: anchor,
-        top: tagRect.top - wrapperRect.top + wrapper.scrollTop
+        top: tagRect.top - wrapperRect.top + tagRect.height / 2 + wrapper.scrollTop
       };
     }).sort(function (a, b) {
       return a.top - b.top;
     });
-
+  
     var groups = [];
-    var lineThreshold = 12;
+    var lineThreshold = 3;
     items.forEach(function (item) {
       var last = groups[groups.length - 1];
       if (last && Math.abs(item.top - tagGroupTop(last)) <= lineThreshold) {
@@ -220,11 +296,11 @@
         groups.push([item]);
       }
     });
-
+  
     var layer = document.createElement("div");
     layer.className = "equation-tag-layer";
     wrapper.appendChild(layer);
-
+  
     groups.forEach(function (groupItems) {
       var group = document.createElement("div");
       group.className = "equation-tag-group";
@@ -233,7 +309,7 @@
       });
       layer.appendChild(group);
     });
-
+  
     wrapper.dataset.equationTagsReady = "true";
     placeEquationTagGroups(wrapper);
   }
@@ -414,6 +490,21 @@
     }
   }
 
+  function expandSolutionsForPrint() {
+    document.querySelectorAll("details.thm-solution").forEach(function (details) {
+      details.dataset.printWasOpen = details.open ? "true" : "false";
+      details.open = true;
+    });
+  }
+
+  function restoreSolutionsAfterPrint() {
+    document.querySelectorAll("details.thm-solution").forEach(function (details) {
+      var wasOpen = details.dataset.printWasOpen === "true";
+      details.open = wasOpen;
+      delete details.dataset.printWasOpen;
+    });
+  }
+
   function tocDepthForHeading(heading) {
     var level = Number(heading.tagName.slice(1));
     return Math.max(0, level - 2);
@@ -438,8 +529,17 @@
     tooltip.hidden = true;
     document.body.appendChild(tooltip);
 
+    var preview = document.createElement("aside");
+    preview.className = "ref-preview";
+    preview.hidden = true;
+    preview.innerHTML = '<button class="ref-preview-close" type="button" aria-label="Close preview" title="Close">×</button><div class="ref-preview-content"></div>';
+    document.body.appendChild(preview);
+    var previewClose = preview.querySelector(".ref-preview-close");
+    var previewContent = preview.querySelector(".ref-preview-content");
+
     var activeTrigger = null;
     var hideTimer = null;
+    var previewPinned = false;
 
     function clearHideTimer() {
       if (hideTimer) {
@@ -452,7 +552,10 @@
       clearHideTimer();
       hideTimer = setTimeout(function () {
         tooltip.hidden = true;
-        activeTrigger = null;
+        if (!previewPinned) {
+          preview.hidden = true;
+          activeTrigger = null;
+        }
       }, 300);
     }
 
@@ -486,10 +589,253 @@
         tooltip.appendChild(item);
       });
 
+      var previewHref = previewSourceUrl(linksData);
+      if (previewHref) {
+        var previewButton = document.createElement("button");
+        previewButton.type = "button";
+        previewButton.setAttribute("aria-label", "Preview reference");
+
+        var previewIcon = document.createElement("img");
+        previewIcon.className = "icon";
+        previewIcon.src = assetIcon && assetIcon.getAttribute("src")
+          ? assetIcon.getAttribute("src").replace(/[^/]+$/, "eye.svg")
+          : "assets/eye.svg";
+        previewIcon.alt = "";
+        previewButton.appendChild(previewIcon);
+
+        previewButton.addEventListener("click", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          showPreview(trigger, linksData);
+        });
+
+        tooltip.appendChild(previewButton);
+      }
+
       tooltip.hidden = linksData.length === 0;
       if (!tooltip.hidden) {
         placeTooltip(trigger);
       }
+    }
+
+    function placePreview(trigger) {
+      var triggerRect = trigger.getBoundingClientRect();
+      var previewRect = preview.getBoundingClientRect();
+      var gap = 12;
+      var minTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--topbar-height")) + 12;
+      var maxTop = window.innerHeight - previewRect.height - gap;
+      var rightSpace = window.innerWidth - triggerRect.right - gap;
+      var leftSpace = triggerRect.left - gap;
+      var belowSpace = window.innerHeight - triggerRect.bottom - gap;
+      var aboveSpace = triggerRect.top - minTop - gap;
+      var preferVertical = window.innerWidth < 720 || Math.max(rightSpace, leftSpace) < previewRect.width;
+
+      preview.style.left = "";
+      preview.style.right = "";
+      preview.style.top = "";
+
+      if (preferVertical && (belowSpace >= previewRect.height || aboveSpace >= previewRect.height || belowSpace > 140 || aboveSpace > 140)) {
+        var top;
+        if (belowSpace >= previewRect.height || belowSpace >= aboveSpace) {
+          top = Math.min(maxTop, triggerRect.bottom + gap);
+        } else {
+          top = Math.max(minTop, triggerRect.top - previewRect.height - gap);
+        }
+        var centeredLeft = triggerRect.left + triggerRect.width / 2 - previewRect.width / 2;
+        preview.style.left = Math.max(gap, Math.min(window.innerWidth - previewRect.width - gap, centeredLeft)) + "px";
+        preview.style.top = top + "px";
+        return;
+      }
+
+      preview.style.top = Math.max(minTop, Math.min(triggerRect.top, maxTop)) + "px";
+      if (rightSpace >= previewRect.width || rightSpace >= leftSpace) {
+        preview.style.left = Math.max(gap, Math.min(window.innerWidth - previewRect.width - gap, triggerRect.right + gap)) + "px";
+      } else {
+        preview.style.left = Math.max(gap, triggerRect.left - previewRect.width - gap) + "px";
+      }
+    }
+
+    function previewSourceUrl(linksData) {
+      for (var i = linksData.length - 1; i >= 0; i -= 1) {
+        if (!/\.pdf(?:#|$)/i.test(linksData[i].href || "")) {
+          return linksData[i].href;
+        }
+      }
+      return linksData.length > 0 ? linksData[0].href : "";
+    }
+
+    function resolvePreviewAnchor(target) {
+      if (!target) return null;
+
+      function previewBlockSelector() {
+        return ".thm-box, .thm-proof, .display-math, figure, li, p, h1, h2, h3, h4, h5, h6";
+      }
+
+      function nextPreviewBlockWithin(start, boundary) {
+        var next = start.nextElementSibling;
+        while (next) {
+          if (next.matches("span[id^='loc-']")) {
+            next = next.nextElementSibling;
+            continue;
+          }
+          if (next.matches(previewBlockSelector())) {
+            return next;
+          }
+          if (boundary && next.closest && next.closest(".thm-box, .thm-proof") !== boundary) {
+            return null;
+          }
+          next = next.nextElementSibling;
+        }
+        return null;
+      }
+
+      if (target.matches && target.matches("span[id^='loc-']")) {
+        var immediateBoundary = target.parentElement && target.parentElement.closest
+          ? target.parentElement.closest(".thm-box, .thm-proof")
+          : null;
+        var immediateLocalMatch = nextPreviewBlockWithin(target, immediateBoundary);
+        if (immediateLocalMatch) return immediateLocalMatch;
+        var immediateFallbackMatch = nextPreviewBlockWithin(target, null);
+        if (immediateFallbackMatch) return immediateFallbackMatch;
+      }
+
+      var direct = target.closest && target.closest(previewBlockSelector());
+      if (direct) return direct;
+
+      var cursor = target;
+      while (cursor) {
+        if (cursor.matches && cursor.matches(previewBlockSelector())) {
+          return cursor;
+        }
+        if (cursor.matches && cursor.matches("span[id^='loc-']")) {
+          var localBoundary = cursor.parentElement && cursor.parentElement.closest
+            ? cursor.parentElement.closest(".thm-box, .thm-proof")
+            : null;
+          var localMatch = nextPreviewBlockWithin(cursor, localBoundary);
+          if (localMatch) {
+            return localMatch;
+          }
+          var fallbackMatch = nextPreviewBlockWithin(cursor, null);
+          if (fallbackMatch) return fallbackMatch;
+        }
+        cursor = cursor.parentElement;
+      }
+
+      return target;
+    }
+
+    function clonePreviewNodes(doc, target) {
+      var nodes = [];
+      var main = doc.querySelector(".content") || doc.body;
+      var anchor = resolvePreviewAnchor(target);
+      if (!anchor) return nodes;
+
+      if (/^H[1-6]$/.test(anchor.tagName)) {
+        nodes.push(anchor.cloneNode(true));
+        var next = anchor.nextElementSibling;
+        while (next && nodes.length < 4) {
+          if (/^H[1-6]$/.test(next.tagName)) break;
+          if (next.closest && next.closest(".page-nav")) break;
+          nodes.push(next.cloneNode(true));
+          next = next.nextElementSibling;
+        }
+        return nodes;
+      }
+
+      if (anchor === main) {
+        return [target.cloneNode(true)];
+      }
+
+      return [anchor.cloneNode(true)];
+    }
+
+    function renderPreviewFromDocument(doc, url) {
+      if (!url.hash) {
+        return "";
+      }
+
+      var targetId = decodeURIComponent(url.hash.slice(1));
+      var target = doc.getElementById(targetId);
+      if (!target) {
+        return "";
+      }
+
+      var wrapper = doc.createElement("div");
+      clonePreviewNodes(doc, target).forEach(function (node) {
+        wrapper.appendChild(node);
+      });
+      normalizeDisplayMathIn(wrapper);
+      wrapper.querySelectorAll(".typst-multi-label-list,.ref-tooltip,.ref-preview").forEach(function (node) {
+        node.remove();
+      });
+      return wrapper.innerHTML || "";
+    }
+
+    function previewMarkupForUrl(rawHref) {
+      if (!rawHref) return Promise.resolve("");
+
+      var url;
+      try {
+        url = new URL(rawHref, window.location.href);
+      } catch (_error) {
+        return Promise.resolve("");
+      }
+
+      if (/\.pdf(?:#|$)/i.test(url.href)) {
+        return Promise.resolve("");
+      }
+
+      if (url.pathname === window.location.pathname) {
+        return Promise.resolve(renderPreviewFromDocument(document, url));
+      }
+
+      return fetch(url.href).then(function (response) {
+        if (!response.ok) throw new Error("preview load failed");
+        return response.text();
+      }).then(function (html) {
+        var parsed = new DOMParser().parseFromString(html, "text/html");
+        return renderPreviewFromDocument(parsed, url);
+      }).catch(function () {
+        return "";
+      });
+    }
+
+    function showPreview(trigger, linksData) {
+      var href = previewSourceUrl(linksData);
+      if (!href) {
+        preview.hidden = true;
+        previewPinned = false;
+        return;
+      }
+
+      var url;
+      try {
+        url = new URL(href, window.location.href);
+      } catch (_error) {
+        preview.hidden = true;
+        previewPinned = false;
+        return;
+      }
+
+      previewMarkupForUrl(url.href).then(function (markup) {
+        if (activeTrigger !== trigger || !markup) {
+          preview.hidden = true;
+          previewPinned = false;
+          return;
+        }
+        previewContent.innerHTML = markup;
+        preview.hidden = false;
+        previewPinned = true;
+        placePreview(trigger);
+      });
+    }
+
+    function hideTooltip() {
+      clearHideTimer();
+      tooltip.hidden = true;
+      preview.hidden = true;
+      previewPinned = false;
+      activeTrigger = null;
     }
 
     document.querySelectorAll(".typst-multi-label-list").forEach(function (source) {
@@ -525,21 +871,53 @@
     tooltip.addEventListener("mouseleave", scheduleHide);
     tooltip.addEventListener("focusin", clearHideTimer);
     tooltip.addEventListener("focusout", scheduleHide);
+    preview.addEventListener("mouseenter", clearHideTimer);
+    preview.addEventListener("mouseleave", scheduleHide);
+    preview.addEventListener("focusin", clearHideTimer);
+    preview.addEventListener("focusout", scheduleHide);
+    if (previewClose) {
+      previewClose.addEventListener("click", function () {
+        hideTooltip();
+      });
+    }
+    document.addEventListener("pointerdown", function (event) {
+      if (tooltip.hidden && preview.hidden) return;
+      var target = event.target;
+      if ((tooltip.contains && tooltip.contains(target)) || (preview.contains && preview.contains(target))) return;
+      if (activeTrigger && activeTrigger.contains && activeTrigger.contains(target)) return;
+      hideTooltip();
+    });
     addEventListener("scroll", function () {
       if (!tooltip.hidden && activeTrigger) {
         placeTooltip(activeTrigger);
+      }
+      if (!preview.hidden && activeTrigger) {
+        placePreview(activeTrigger);
       }
     }, { passive: true });
     addEventListener("resize", function () {
       if (!tooltip.hidden && activeTrigger) {
         placeTooltip(activeTrigger);
       }
+      if (!preview.hidden && activeTrigger) {
+        placePreview(activeTrigger);
+      }
     });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape") {
-        tooltip.hidden = true;
-        activeTrigger = null;
+        hideTooltip();
       }
+    });
+
+    addEventListener("beforeprint", hideTooltip);
+  }
+
+  function setupPrintButton() {
+    var button = document.querySelector(".print-button");
+    if (!button) return;
+
+    button.addEventListener("click", function () {
+      window.print();
     });
   }
 
@@ -579,6 +957,9 @@
   upgradeMathLinks();
   setupReferenceTooltips();
   setupMathLinkNavigation();
+  setupPrintButton();
+  addEventListener("beforeprint", expandSolutionsForPrint);
+  addEventListener("afterprint", restoreSolutionsAfterPrint);
   fillTheoremLeaders();
   addEventListener("resize", function () {
     fillTheoremLeaders();

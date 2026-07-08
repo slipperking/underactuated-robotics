@@ -1,5 +1,4 @@
-web/dist/
-web/.server.pid
+dist/
 *.pdf
 main.html
 !figures/**/*.pdf
@@ -12,4 +11,3 @@ Thumbs.db
 /build
 
 test.typ
-.python-version

@@ -10,6 +10,7 @@
 
 #set heading(numbering: "1.1")
 #counter(heading).update(0)
+#include "preliminaries/index.typ"
 #include "robot-dynamics/index.typ"
 
 #context if render-mode.get() == "pdf" {
