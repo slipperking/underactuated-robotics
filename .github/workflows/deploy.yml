@@ -29,6 +29,10 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Python dependencies
+        run: |
+          pip install numpy beautifulsoup4
+
       - name: Build Document
         run: |
           Remove-Item -Recurse -Force web/dist -ErrorAction SilentlyContinue
