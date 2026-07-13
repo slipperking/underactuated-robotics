@@ -7,4 +7,4 @@
   description: "References cited by the notes.",
 )
 
-#bibliography("/references.bib", full: true)
+#context bibliography("/references.bib", full: true, group: state("render-mode").get())
