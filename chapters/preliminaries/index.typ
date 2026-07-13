@@ -6,8 +6,9 @@
   description: ".",
 )
 // todo, potentially add lin alg results and definitions
-#let t(..args) = tiling(size: (4pt, 4pt), ..args)[
-  #line(start: (0%, 50%), end: (100%, 50%), stroke: 1pt + blue)
+#let t(..args) = tiling(size: (30pt, 30pt), spacing: (10pt, 10pt), ..args)[
+  #square(width: 100%, height: 100%, stroke: 1pt, fill: blue)
 ]
 
-#potential-frame(rect(fill: t(angle: 45deg), width: 100pt, height: 60pt, stroke: 1pt))
+
+#potential-frame(rect(fill: t(offset: (0%, -0%), angle: 20deg), width: 200pt, height: 100pt, stroke: 1pt))

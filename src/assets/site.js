@@ -6,6 +6,7 @@
   var themeButtonIcon = themeButton ? themeButton.querySelector(".icon") : null;
   var assetIcon = document.querySelector(".icon");
   var storedTheme = localStorage.getItem("theme") || "auto";
+  var printThemeOverrideActive = false;
   var THEME_ICON_FILES = {
     light: "sun.svg",
     dark: "moon.svg",
@@ -22,7 +23,7 @@
   function applyTheme(mode) {
     storedTheme = mode;
     localStorage.setItem("theme", mode);
-    document.documentElement.dataset.theme = resolvedTheme(mode);
+    document.documentElement.dataset.theme = printThemeOverrideActive ? "light" : resolvedTheme(mode);
     if (themeButton) {
       themeButton.title = "Theme: " + mode.charAt(0).toUpperCase() + mode.slice(1);
       themeButton.setAttribute("aria-label", themeButton.title);
@@ -44,7 +45,7 @@
 
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
     if (storedTheme === "auto") {
-      document.documentElement.dataset.theme = resolvedTheme("auto");
+      document.documentElement.dataset.theme = printThemeOverrideActive ? "light" : resolvedTheme("auto");
     }
   });
 
@@ -104,7 +105,9 @@
     }
   });
 
-  function fillTheoremLeaders() {
+  function fillTheoremLeaders(root) {
+    root = root || document;
+    if (!root.querySelectorAll) return;
     var ruler = document.createElement("span");
     ruler.style.cssText = "position:absolute;visibility:hidden;font-family:var(--sans);white-space:nowrap;";
     ruler.textContent = "..........";
@@ -112,7 +115,7 @@
     var dotWidth = Math.max(1, ruler.getBoundingClientRect().width / 10);
     ruler.remove();
 
-    document.querySelectorAll(".theorem-list-entry").forEach(function (entry) {
+    root.querySelectorAll(".theorem-list-entry").forEach(function (entry) {
       var dots = entry.querySelector(".theorem-list-dots");
       var marker = entry.querySelector(".theorem-list-end");
       var page = entry.querySelector(".theorem-list-page");
@@ -128,57 +131,9 @@
     });
   }
 
-  function flattenDisplayMathWrappers() {
-    document.querySelectorAll(".display-math > .display-math").forEach(function (inner) {
-      var outer = inner.parentNode;
-      if (!outer || !outer.classList.contains("display-math")) return;
-      while (inner.firstChild) {
-        outer.insertBefore(inner.firstChild, inner);
-      }
-      inner.remove();
-    });
-  }
-
-  function flattenDisplayMathWrappersIn(root) {
-    if (!root || !root.querySelectorAll) return;
-    root.querySelectorAll(".display-math > .display-math").forEach(function (inner) {
-      var outer = inner.parentNode;
-      if (!outer || !outer.classList.contains("display-math")) return;
-      while (inner.firstChild) {
-        outer.insertBefore(inner.firstChild, inner);
-      }
-      inner.remove();
-    });
-  }
-
-  function normalizeDisplayMath() {
-    flattenDisplayMathWrappers();
-    document.querySelectorAll('math[display="block"]').forEach(function (math) {
-      var wrapper = math.closest(".display-math");
-      if (!wrapper && math.parentNode) {
-        wrapper = document.createElement("div");
-        wrapper.className = "display-math";
-        math.parentNode.insertBefore(wrapper, math);
-        wrapper.appendChild(math);
-      }
-
-      if (!wrapper) return;
-
-      var scroll = math.closest(".equation-scroll");
-      if (!scroll || !wrapper.contains(scroll)) {
-        scroll = document.createElement("div");
-        scroll.className = "equation-scroll";
-        math.parentNode.insertBefore(scroll, math);
-        scroll.appendChild(math);
-      }
-
-      setupDisplayMathTags(wrapper, math);
-    });
-  }
-
-  function normalizeDisplayMathIn(root) {
-    if (!root || !root.querySelectorAll) return;
-    flattenDisplayMathWrappersIn(root);
+  function normalizeDisplayMath(root) {
+    root = root || document;
+    if (!root.querySelectorAll) return;
     root.querySelectorAll('math[display="block"]').forEach(function (math) {
       var wrapper = math.closest(".display-math");
       if (!wrapper && math.parentNode) {
@@ -189,6 +144,10 @@
       }
 
       if (!wrapper) return;
+      if (wrapper.dataset.displayMathProcessed === "true") {
+        placeEquationTagGroups(wrapper);
+        return;
+      }
 
       var scroll = math.closest(".equation-scroll");
       if (!scroll || !wrapper.contains(scroll)) {
@@ -199,6 +158,7 @@
       }
 
       setupDisplayMathTags(wrapper, math);
+      wrapper.dataset.displayMathProcessed = "true";
     });
   }
 
@@ -228,7 +188,7 @@
       var top = anchors.reduce(function (sum, anchor) {
         var rect = anchor.getBoundingClientRect();
         return sum + rect.top - wrapperRect.top - (parseFloat(getComputedStyle(group).fontSize) || 0) / 2;
-}, 0) / anchors.length;
+      }, 0) / anchors.length;
 
       group.style.top = top + "px";
       var width = group.getBoundingClientRect().width;
@@ -245,21 +205,21 @@
       placeEquationTagGroups(wrapper);
       return;
     }
-  
+
     var tags = Array.from(wrapper.querySelectorAll(".eq-tag,.equation-tag")).filter(function (tag) {
-      return!tag.closest(".equation-tag-layer");
+      return !tag.closest(".equation-tag-layer");
     });
     if (tags.length === 0) return;
-  
+
     var mathmlNs = "http://www.w3.org/1998/Math/MathML";
     var wrapperRect = wrapper.getBoundingClientRect();
     var items = tags.map(function (tag) {
       var tagRect = tag.getBoundingClientRect();
       var isInsideMath = math.contains(tag);
       var anchor = tag;
-  
+
       tag.classList.add("equation-tag");
-  
+
       if (isInsideMath) {
         anchor = document.createElementNS(mathmlNs, "mspace");
         anchor.setAttribute("class", "equation-tag-space");
@@ -269,13 +229,13 @@
         anchor = document.createElement("span");
         anchor.className = "equation-tag-anchor";
         var parent = tag.parentNode;
-        var holder = parent && parent!== wrapper && parent.children.length === 1? parent : tag;
+        var holder = parent && parent !== wrapper && parent.children.length === 1 ? parent : tag;
         holder.parentNode.insertBefore(anchor, holder);
-        if (holder!== tag) {
+        if (holder !== tag) {
           holder.classList.add("equation-tag-holder");
         }
       }
-  
+
       tag._equationTagAnchor = anchor;
       return {
         tag: tag,
@@ -285,7 +245,7 @@
     }).sort(function (a, b) {
       return a.top - b.top;
     });
-  
+
     var groups = [];
     var lineThreshold = 3;
     items.forEach(function (item) {
@@ -296,11 +256,11 @@
         groups.push([item]);
       }
     });
-  
+
     var layer = document.createElement("div");
     layer.className = "equation-tag-layer";
     wrapper.appendChild(layer);
-  
+
     groups.forEach(function (groupItems) {
       var group = document.createElement("div");
       group.className = "equation-tag-group";
@@ -309,7 +269,7 @@
       });
       layer.appendChild(group);
     });
-  
+
     wrapper.dataset.equationTagsReady = "true";
     placeEquationTagGroups(wrapper);
   }
@@ -433,10 +393,12 @@
     }
   }
 
-  function upgradeMathLinks() {
+  function upgradeMathLinks(root) {
+    root = root || document;
+    if (!root.querySelectorAll) return;
     var mathmlNs = "http://www.w3.org/1998/Math/MathML";
 
-    document.querySelectorAll("math a[href]").forEach(function (anchor) {
+    root.querySelectorAll("math a[href]").forEach(function (anchor) {
       var mtext = document.createElementNS(mathmlNs, "mtext");
       mtext.setAttribute("class", "math-link");
       mtext.setAttribute("role", "link");
@@ -468,8 +430,11 @@
     }
   }
 
-  function setupLocalTocRowNavigation() {
-    document.querySelectorAll(".local-toc li").forEach(function (item) {
+  function setupLocalTocRowNavigation(root) {
+    root = root || document;
+    if (!root.querySelectorAll) return;
+    root.querySelectorAll(".local-toc li").forEach(function (item) {
+      if (item.dataset.rowNavProcessed === "true") return;
       var primary = item.querySelector("a[href]");
       if (!primary) return;
 
@@ -479,6 +444,7 @@
 
         window.location.href = primary.href;
       });
+      item.dataset.rowNavProcessed = "true";
     });
   }
 
@@ -503,6 +469,17 @@
       details.open = wasOpen;
       delete details.dataset.printWasOpen;
     });
+  }
+
+  function applyPrintThemeOverride() {
+    printThemeOverrideActive = true;
+    document.documentElement.dataset.theme = "light";
+  }
+
+  function clearPrintThemeOverride() {
+    if (!printThemeOverrideActive) return;
+    printThemeOverrideActive = false;
+    document.documentElement.dataset.theme = resolvedTheme(storedTheme);
   }
 
   function tocDepthForHeading(heading) {
@@ -532,7 +509,7 @@
     var preview = document.createElement("aside");
     preview.className = "ref-preview";
     preview.hidden = true;
-    preview.innerHTML = '<button class="ref-preview-close" type="button" aria-label="Close preview" title="Close">×</button><div class="ref-preview-content"></div>';
+    preview.innerHTML = '<button class="ref-preview-close" type="button" aria-label="Close preview">×</button><div class="ref-preview-content"></div>';
     document.body.appendChild(preview);
     var previewClose = preview.querySelector(".ref-preview-close");
     var previewContent = preview.querySelector(".ref-preview-content");
@@ -540,6 +517,9 @@
     var activeTrigger = null;
     var hideTimer = null;
     var previewPinned = false;
+    var previewDragged = false;
+    var previewDragState = null;
+    var previewAnchorKey = "";
 
     function clearHideTimer() {
       if (hideTimer) {
@@ -618,7 +598,26 @@
       }
     }
 
+    function hasDraggedPreviewPosition() {
+      return !!(previewDragged && previewDragState && typeof previewDragState.left === "number" && typeof previewDragState.top === "number");
+    }
+
+    function resetDraggedPreviewPosition() {
+      previewDragged = false;
+      previewDragState = null;
+      preview.style.left = "";
+      preview.style.top = "";
+      preview.style.right = "";
+    }
+
     function placePreview(trigger) {
+      if (hasDraggedPreviewPosition()) {
+        preview.style.left = previewDragState.left + "px";
+        preview.style.top = previewDragState.top + "px";
+        preview.style.right = "";
+        return;
+      }
+
       var triggerRect = trigger.getBoundingClientRect();
       var previewRect = preview.getBoundingClientRect();
       var gap = 12;
@@ -653,6 +652,30 @@
       } else {
         preview.style.left = Math.max(gap, triggerRect.left - previewRect.width - gap) + "px";
       }
+    }
+
+    function clampPreviewPosition(left, top) {
+      var rect = preview.getBoundingClientRect();
+      var gap = 8;
+      var minTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--topbar-height")) + gap;
+      var maxLeft = Math.max(gap, window.innerWidth - rect.width - gap);
+      var maxTop = Math.max(minTop, window.innerHeight - rect.height - gap);
+      return {
+        left: Math.max(gap, Math.min(left, maxLeft)),
+        top: Math.max(minTop, Math.min(top, maxTop))
+      };
+    }
+
+    function applyDraggedPreviewPosition(left, top) {
+      var clamped = clampPreviewPosition(left, top);
+      if (!previewDragState) {
+        previewDragState = {};
+      }
+      previewDragState.left = clamped.left;
+      previewDragState.top = clamped.top;
+      preview.style.left = clamped.left + "px";
+      preview.style.top = clamped.top + "px";
+      preview.style.right = "";
     }
 
     function previewSourceUrl(linksData) {
@@ -749,7 +772,20 @@
       return [anchor.cloneNode(true)];
     }
 
-    function renderPreviewFromDocument(doc, url) {
+  function preparePreviewContent(root) {
+    if (!root) return;
+    upgradeMathLinks(root);
+    fillTheoremLeaders(root);
+    setupLocalTocRowNavigation(root);
+    if (setupReferenceTooltips.bindInto) {
+      setupReferenceTooltips.bindInto(root);
+    }
+    root.querySelectorAll(".typst-multi-label-list,.ref-tooltip,.ref-preview").forEach(function (node) {
+      node.remove();
+    });
+  }
+
+  function renderPreviewFromDocument(doc, url) {
       if (!url.hash) {
         return "";
       }
@@ -761,13 +797,18 @@
       }
 
       var wrapper = doc.createElement("div");
-      clonePreviewNodes(doc, target).forEach(function (node) {
+      var previewNodes = clonePreviewNodes(doc, target);
+      previewNodes.forEach(function (node) {
         wrapper.appendChild(node);
       });
-      normalizeDisplayMathIn(wrapper);
-      wrapper.querySelectorAll(".typst-multi-label-list,.ref-tooltip,.ref-preview").forEach(function (node) {
-        node.remove();
-      });
+      if (previewNodes.length === 1 && previewNodes[0].tagName && previewNodes[0].tagName.toLowerCase() === "li") {
+        var li = previewNodes[0];
+        var paragraph = doc.createElement("p");
+        paragraph.innerHTML = li.innerHTML;
+        wrapper.textContent = "";
+        wrapper.appendChild(paragraph);
+      }
+      preparePreviewContent(wrapper);
       return wrapper.innerHTML || "";
     }
 
@@ -817,6 +858,12 @@
         return;
       }
 
+      var nextAnchorKey = url.href + "::" + (trigger.getAttribute("href") || trigger.getAttribute("data-href") || trigger.textContent || "");
+      if (previewAnchorKey && previewAnchorKey !== nextAnchorKey) {
+        resetDraggedPreviewPosition();
+      }
+      previewAnchorKey = nextAnchorKey;
+
       previewMarkupForUrl(url.href).then(function (markup) {
         if (activeTrigger !== trigger || !markup) {
           preview.hidden = true;
@@ -825,8 +872,12 @@
         }
         previewContent.innerHTML = markup;
         preview.hidden = false;
+        preview.style.visibility = "hidden";
+        enhanceContent(previewContent);
         previewPinned = true;
+        preview.classList.remove("dragging");
         placePreview(trigger);
+        preview.style.visibility = "";
       });
     }
 
@@ -835,37 +886,44 @@
       tooltip.hidden = true;
       preview.hidden = true;
       previewPinned = false;
+      previewAnchorKey = "";
+      resetDraggedPreviewPosition();
       activeTrigger = null;
     }
 
-    document.querySelectorAll(".typst-multi-label-list").forEach(function (source) {
-      let trigger = source.previousElementSibling;
-      while (trigger && !(trigger.matches("a[href]") || trigger.matches(".math-link"))) {
-        trigger = trigger.previousElementSibling;
-      }
-      if (!trigger) return;
+    function bindReferenceTooltips(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll(".typst-multi-label-list").forEach(function (source) {
+        if (source.dataset.refTooltipProcessed === "true") return;
+        let trigger = source.previousElementSibling;
+        while (trigger && !(trigger.matches("a[href]") || trigger.matches(".math-link"))) {
+          trigger = trigger.previousElementSibling;
+        }
+        if (!trigger) return;
 
-      var links = Array.from(source.querySelectorAll("a[href], .math-link"));
-      var linksData = links.map(function (link, index) {
-        return {
-          href: link.getAttribute("href") || link.getAttribute("data-href"),
-          label: linkLabel(link, index, links)
-        };
+        var links = Array.from(source.querySelectorAll("a[href], .math-link"));
+        var linksData = links.map(function (link, index) {
+          return {
+            href: link.getAttribute("href") || link.getAttribute("data-href"),
+            label: linkLabel(link, index, links)
+          };
+        });
+
+        source.dataset.refTooltipProcessed = "true";
+        source.remove();
+
+        trigger.classList.add("ref-with-tooltip");
+
+        trigger.addEventListener("mouseenter", function () {
+          showTooltip(trigger, linksData);
+        });
+        trigger.addEventListener("mouseleave", scheduleHide);
+        trigger.addEventListener("focus", function () {
+          showTooltip(trigger, linksData);
+        });
+        trigger.addEventListener("blur", scheduleHide);
       });
-
-      source.remove();
-
-      trigger.classList.add("ref-with-tooltip");
-
-      trigger.addEventListener("mouseenter", function () {
-        showTooltip(trigger, linksData);
-      });
-      trigger.addEventListener("mouseleave", scheduleHide);
-      trigger.addEventListener("focus", function () {
-        showTooltip(trigger, linksData);
-      });
-      trigger.addEventListener("blur", scheduleHide);
-    });
+    }
 
     tooltip.addEventListener("mouseenter", clearHideTimer);
     tooltip.addEventListener("mouseleave", scheduleHide);
@@ -875,16 +933,45 @@
     preview.addEventListener("mouseleave", scheduleHide);
     preview.addEventListener("focusin", clearHideTimer);
     preview.addEventListener("focusout", scheduleHide);
-    if (previewClose) {
-      previewClose.addEventListener("click", function () {
-        hideTooltip();
-      });
+    preview.addEventListener("pointerdown", function (event) {
+      if (event.button !== 0) return;
+      if (event.target.closest("a, button, input, textarea, select")) return;
+      clearHideTimer();
+      var rect = preview.getBoundingClientRect();
+      previewDragged = true;
+      previewDragState = {
+        left: rect.left,
+        top: rect.top,
+        pointerId: event.pointerId,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top
+      };
+      preview.setPointerCapture(event.pointerId);
+      preview.classList.add("dragging");
+      event.preventDefault();
+    });
+    preview.addEventListener("pointermove", function (event) {
+      if (!previewDragState || previewDragState.pointerId !== event.pointerId) return;
+      applyDraggedPreviewPosition(
+        event.clientX - previewDragState.offsetX,
+        event.clientY - previewDragState.offsetY
+      );
+    });
+    function stopPreviewDrag(event) {
+      if (!previewDragState || previewDragState.pointerId !== event.pointerId) return;
+      if (preview.hasPointerCapture && preview.hasPointerCapture(event.pointerId)) {
+        preview.releasePointerCapture(event.pointerId);
+      }
+      previewDragState.pointerId = null;
+      delete previewDragState.offsetX;
+      delete previewDragState.offsetY;
+      preview.classList.remove("dragging");
     }
-    document.addEventListener("pointerdown", function (event) {
-      if (tooltip.hidden && preview.hidden) return;
-      var target = event.target;
-      if ((tooltip.contains && tooltip.contains(target)) || (preview.contains && preview.contains(target))) return;
-      if (activeTrigger && activeTrigger.contains && activeTrigger.contains(target)) return;
+    preview.addEventListener("pointerup", stopPreviewDrag);
+    preview.addEventListener("pointercancel", stopPreviewDrag);
+    previewClose.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
       hideTooltip();
     });
     addEventListener("scroll", function () {
@@ -900,7 +987,11 @@
         placeTooltip(activeTrigger);
       }
       if (!preview.hidden && activeTrigger) {
-        placePreview(activeTrigger);
+        if (hasDraggedPreviewPosition()) {
+          applyDraggedPreviewPosition(previewDragState.left, previewDragState.top);
+        } else {
+          placePreview(activeTrigger);
+        }
       }
     });
     document.addEventListener("keydown", function (event) {
@@ -910,6 +1001,19 @@
     });
 
     addEventListener("beforeprint", hideTooltip);
+    bindReferenceTooltips(document);
+    setupReferenceTooltips.bindInto = bindReferenceTooltips;
+  }
+
+  function enhanceContent(root) {
+    if (!root) return;
+    upgradeMathLinks(root);
+    normalizeDisplayMath(root);
+    fillTheoremLeaders(root);
+    setupLocalTocRowNavigation(root);
+    if (setupReferenceTooltips.bindInto) {
+      setupReferenceTooltips.bindInto(root);
+    }
   }
 
   function setupPrintButton() {
@@ -950,23 +1054,25 @@
     });
   }
 
-  normalizeDisplayMath();
+  normalizeDisplayMath(document);
   setupGlobalNavCollapse();
-  setupLocalTocRowNavigation();
+  setupLocalTocRowNavigation(document);
   whenDomReady(moveFootnotesAbovePageNav);
-  upgradeMathLinks();
+  upgradeMathLinks(document);
   setupReferenceTooltips();
   setupMathLinkNavigation();
   setupPrintButton();
   addEventListener("beforeprint", expandSolutionsForPrint);
   addEventListener("afterprint", restoreSolutionsAfterPrint);
-  fillTheoremLeaders();
+  addEventListener("beforeprint", applyPrintThemeOverride);
+  addEventListener("afterprint", clearPrintThemeOverride);
+  fillTheoremLeaders(document);
   addEventListener("resize", function () {
-    fillTheoremLeaders();
+    fillTheoremLeaders(document);
     document.querySelectorAll(".display-math").forEach(placeEquationTagGroups);
   });
   addEventListener("load", function () {
-    fillTheoremLeaders();
+    fillTheoremLeaders(document);
     document.querySelectorAll(".display-math").forEach(placeEquationTagGroups);
   });
 })();

@@ -5,6 +5,7 @@
 
 #let pdf-doc-label = <pdf-notes>
 #let web-doc-label = <web-notes>
+#let equation-revoke = <typst-equation-revoke>
 
 #let secondary-label-assignment-counter = state("secondary-label-assignment", 0)
 #let secondary-label-assignment-map = state("secondary-label-assignment-map", (:))
@@ -89,7 +90,7 @@
   }
   show math.equation: it => {
     let label = it.fields().at("label", default: none)
-    if label != none {
+    if label != none and label != equation-revoke {
       math.equation(block: true, numbering: scoped-equation-numbering, it)
     } else {
       it
@@ -171,7 +172,7 @@
     show math.equation: it => {
       if it.block and it.numbering != none {
         let number = counter(math.equation).display(it.numbering)
-        $ it.body tag(number) $
+        [$ it.body tag(number) $ #equation-revoke]
       } else {
         it
       }
@@ -197,7 +198,9 @@
     show math.equation.where(block: true): it => context {
       // prevent double wrapping with previous numbering show rule.
       // also, in figures, html will be paged, so no div.
-      if it.numbering == none and target() != "paged" {
+      if (
+        it.numbering == none and target() != "paged" and it.fields().at("label", default: none) != equation-revoke
+      ) {
         html.elem("div", attrs: (class: "display-math"), it)
       } else { it }
     }
